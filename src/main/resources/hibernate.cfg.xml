@@ -10,7 +10,7 @@
 
         <!-- Configuration de la connexion à la base de données -->
         <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
-        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/Universite</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/AcademicAppDB</property>
         <property name="hibernate.connection.username">root</property>
         <property name="hibernate.connection.password">cytech000!</property>
 
@@ -25,7 +25,7 @@
         <property name="hibernate.hbm2ddl.auto">update</property>
 
         <!-- Scannez les annotations dans les classes d'entité -->
-        <mapping class="com.jeeproject.model.Etudiant"/>
+        <mapping class="com.jeeproject.model.Student"/>
 
         <!-- Ajoutez d'autres mappings si nécessaire -->
     </session-factory>
