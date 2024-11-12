@@ -26,7 +26,8 @@ CREATE TABLE `etudiant` (
   `date_naissance` date DEFAULT NULL,
   `contact` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `utilisateur_id` (`utilisateur_id`)
+  UNIQUE KEY `utilisateur_id` (`utilisateur_id`),
+  CONSTRAINT `etudiant_ibfk_1` FOREIGN KEY (`utilisateur_id`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `enseignant` (
@@ -36,7 +37,8 @@ CREATE TABLE `enseignant` (
   `prenom` varchar(50) NOT NULL,
   `contact` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `utilisateur_id` (`utilisateur_id`)
+  UNIQUE KEY `utilisateur_id` (`utilisateur_id`),
+  CONSTRAINT `enseignant_ibfk_1` FOREIGN KEY (`utilisateur_id`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `cours` (
