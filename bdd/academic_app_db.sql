@@ -2,73 +2,73 @@ CREATE DATABASE AcademicAppDB;
 
 USE AcademicAppDB;
 
-DROP TABLE IF EXISTS `utilisateur`;
-DROP TABLE IF EXISTS `etudiant`;
-DROP TABLE IF EXISTS `cours`;
-DROP TABLE IF EXISTS `enseignant`;
-DROP TABLE IF EXISTS `inscription`;
-DROP TABLE IF EXISTS `resultat`;
+DROP TABLE IF EXISTS `user`;
+DROP TABLE IF EXISTS `student`;
+DROP TABLE IF EXISTS `course`;
+DROP TABLE IF EXISTS `professor`;
+DROP TABLE IF EXISTS `enrollment`;
+DROP TABLE IF EXISTS `result`;
 
-CREATE TABLE `utilisateur` (
+CREATE TABLE `user` (
 	`id` int NOT NULL AUTO_INCREMENT,
     `email` varchar(100) NOT NULL,
 	`password` varchar(255) NOT NULL,
-    `role` enum('etudiant','enseignant','admin') NOT NULL,
+    `role` enum('student','professor','admin') NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `email` (`email`)
 );
 
-CREATE TABLE `etudiant` (
+CREATE TABLE `student` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `utilisateur_id` int NOT NULL,
-  `nom` varchar(50) NOT NULL,
-  `prenom` varchar(50) NOT NULL,
-  `date_naissance` date DEFAULT NULL,
+  `user_id` int NOT NULL,
+  `last_name` varchar(50) NOT NULL,
+  `first_name` varchar(50) NOT NULL,
+  `date_of_birth` date DEFAULT NULL,
   `contact` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `utilisateur_id` (`utilisateur_id`),
-  CONSTRAINT `etudiant_ibfk_1` FOREIGN KEY (`utilisateur_id`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE
+  UNIQUE KEY `user_id` (`user_id`),
+  CONSTRAINT `student_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `enseignant` (
+CREATE TABLE `professor` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `utilisateur_id` int NOT NULL,
-  `nom` varchar(50) NOT NULL,
-  `prenom` varchar(50) NOT NULL,
+  `user_id` int NOT NULL,
+  `last_name` varchar(50) NOT NULL,
+  `first_name` varchar(50) NOT NULL,
   `contact` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `utilisateur_id` (`utilisateur_id`),
-  CONSTRAINT `enseignant_ibfk_1` FOREIGN KEY (`utilisateur_id`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE
+  UNIQUE KEY `user_id` (`user_id`),
+  CONSTRAINT `professor_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `cours` (
+CREATE TABLE `course` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `nom_cours` varchar(100) NOT NULL,
+  `course_name` varchar(100) NOT NULL,
   `description` text,
-  `enseignant_id` int DEFAULT NULL,
+  `professor_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `enseignant_id` (`enseignant_id`),
-  CONSTRAINT `cours_ibfk_1` FOREIGN KEY (`enseignant_id`) REFERENCES `enseignant` (`id`) ON DELETE SET NULL
+  KEY `professor_id` (`professor_id`),
+  CONSTRAINT `course_ibfk_1` FOREIGN KEY (`professor_id`) REFERENCES `professor` (`id`) ON DELETE SET NULL
 );
 
-CREATE TABLE `inscription` (
+CREATE TABLE `enrollment` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `etudiant_id` int NOT NULL,
-  `cours_id` int NOT NULL,
-  `date_inscription` date NOT NULL,
+  `student_id` int NOT NULL,
+  `course_id` int NOT NULL,
+  `enrollment_date` date NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `etudiant_id` (`etudiant_id`),
-  KEY `cours_id` (`cours_id`),
-  CONSTRAINT `inscription_ibfk_1` FOREIGN KEY (`etudiant_id`) REFERENCES `etudiant` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `inscription_ibfk_2` FOREIGN KEY (`cours_id`) REFERENCES `cours` (`id`) ON DELETE CASCADE
+  KEY `student_id` (`student_id`),
+  KEY `course_id` (`course_id`),
+  CONSTRAINT `enrollment_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `student` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `enrollment_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `resultat` (
+CREATE TABLE `result` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `inscription_id` int NOT NULL,
-  `note` decimal(5,2) DEFAULT NULL,
-  `date_saisie` date NOT NULL,
+  `enrollment_id` int NOT NULL,
+  `grade` decimal(5,2) DEFAULT NULL,
+  `entry_date` date NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `inscription_id` (`inscription_id`),
-  CONSTRAINT `resultat_ibfk_1` FOREIGN KEY (`inscription_id`) REFERENCES `inscription` (`id`) ON DELETE CASCADE
+  KEY `enrollment_id` (`enrollment_id`),
+  CONSTRAINT `result_ibfk_1` FOREIGN KEY (`enrollment_id`) REFERENCES `enrollment` (`id`) ON DELETE CASCADE
 );
