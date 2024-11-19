@@ -6,7 +6,6 @@ public class User {
     private String password;
     private String role;
 
-    // Constructeur
     public User() {
     }
 
