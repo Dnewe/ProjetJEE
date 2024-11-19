@@ -25,7 +25,12 @@
         <property name="hibernate.hbm2ddl.auto">update</property>
 
         <!-- Scannez les annotations dans les classes d'entité -->
+        <mapping class="com.jeeproject.model.User"/>
         <mapping class="com.jeeproject.model.Student"/>
+        <mapping class="com.jeeproject.model.Professor"/>
+        <mapping class="com.jeeproject.model.Course"/>
+        <mapping class="com.jeeproject.model.Enrollment"/>
+        <mapping class="com.jeeproject.model.Result"/>
 
         <!-- Ajoutez d'autres mappings si nécessaire -->
     </session-factory>

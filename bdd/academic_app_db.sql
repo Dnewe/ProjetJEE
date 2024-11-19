@@ -1,3 +1,4 @@
+DROP DATABASE IF EXISTS AcademicAppDB;
 CREATE DATABASE AcademicAppDB;
 
 USE AcademicAppDB;
@@ -72,3 +73,6 @@ CREATE TABLE `result` (
   KEY `enrollment_id` (`enrollment_id`),
   CONSTRAINT `result_ibfk_1` FOREIGN KEY (`enrollment_id`) REFERENCES `enrollment` (`id`) ON DELETE CASCADE
 );
+
+INSERT INTO `user` (`email`, `password`, `role`) 
+VALUES ('admin@example.com', 'admin123', 'admin');
