@@ -31,6 +31,26 @@ public class CourseDAO {
         return course;
     }
 
+    public List<Course> findByStudentId(int studentId) {
+        Session session = sessionFactory.openSession();
+        String hql = "SELECT c FROM Course c JOIN Enrollment e ON c.id = e.course.id WHERE e.student.id = :studentId";
+        List<Course> courses = session.createQuery(hql, Course.class)
+                .setParameter("studentId", studentId)
+                .getResultList();
+        session.close();
+        return courses;
+    }
+
+    public List<Course> findByProfessorId(int professorId) {
+        Session session = sessionFactory.openSession();
+        String hql = "FROM Course c WHERE c.professor.id = :professorId";
+        List<Course> courses = session.createQuery(hql, Course.class)
+                .setParameter("professorId", professorId)
+                .getResultList();
+        session.close();
+        return courses;
+    }
+
     public List<Course> findAll() {
         Session session = sessionFactory.openSession();
         List<Course> courses = session.createQuery("FROM Course", Course.class).list();

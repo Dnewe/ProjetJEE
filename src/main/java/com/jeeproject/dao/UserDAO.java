@@ -1,7 +1,6 @@
 package com.jeeproject.dao;
 
 import com.jeeproject.model.User;
-import com.jeeproject.model.User;
 import com.jeeproject.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -28,6 +27,14 @@ public class UserDAO {
     public User findById(int id) {
         Session session = sessionFactory.openSession();
         User user = session.get(User.class, id);
+        session.close();
+        return user;
+    }
+
+    public User findByEmail(String email) {
+        Session session = sessionFactory.openSession();
+        String hql = "FROM User s WHERE s.email = :email";
+        User user = session.createQuery(hql, User.class).setParameter("email", email).uniqueResult();
         session.close();
         return user;
     }

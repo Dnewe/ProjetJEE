@@ -1,10 +1,7 @@
 package com.jeeproject.service;
 
-import com.jeeproject.controller.StudentController;
 import com.jeeproject.dao.StudentDAO;
 import com.jeeproject.model.Student;
-import com.jeeproject.model.User;
-import jakarta.servlet.ServletException;
 
 import java.util.List;
 
@@ -20,6 +17,10 @@ public class StudentService {
     public static Student getStudentById(int id) {
         return studentDAO.findById(id);
     }
+
+    public static Student getStudentByUserId(int userId) { return studentDAO.findByUserId(userId); }
+
+    public static List<Student> getStudentsByCourseId(int courseId) { return studentDAO.findByCourseId(courseId); }
 
     public static List<Student> getAllStudents() {
         return studentDAO.findAll();

@@ -31,6 +31,36 @@ public class ResultDAO {
         return result;
     }
 
+    public List<Object[]> findResultsWithCourseByStudentId(int studentId) {
+        Session session = sessionFactory.openSession();
+        String hql = "SELECT r, c " +
+                    "FROM Result r " +
+                    "JOIN r.enrollment e " +
+                    "JOIN e.course c " +
+                    "JOIN e.student s " +
+                    "WHERE s.id = :studentId";
+        List<Object[]> resultsWithCourseName = session.createQuery(hql, Object[].class)
+                .setParameter("studentId", studentId)
+                .getResultList();
+        session.close();
+        return resultsWithCourseName;
+    }
+
+    public List<Object[]> findResultsWithStudentByCourseId(int courseId) {
+        Session session = sessionFactory.openSession();
+        String hql = "SELECT r, s " +
+                "FROM Result r " +
+                "JOIN r.enrollment e " +
+                "JOIN e.course c " +
+                "JOIN e.student s " +
+                "WHERE s.id = :courseId";
+        List<Object[]> resultsWithCourseName = session.createQuery(hql, Object[].class)
+                .setParameter("courseId", courseId)
+                .getResultList();
+        session.close();
+        return resultsWithCourseName;
+    }
+
     public List<Result> findAll() {
         Session session = sessionFactory.openSession();
         List<Result> results = session.createQuery("FROM Result", Result.class).list();

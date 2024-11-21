@@ -1,7 +1,6 @@
 package com.jeeproject.service;
 
 import com.jeeproject.dao.UserDAO;
-import com.jeeproject.dao.UserDAO;
 import com.jeeproject.model.User;
 
 import java.util.List;
@@ -18,6 +17,8 @@ public class UserService {
         return userDAO.findById(id);
     }
 
+    public static User getUserByEmail(String email) { return userDAO.findByEmail(email); }
+
     public static List<User> getAllUsers() {
         return userDAO.findAll();
     }
@@ -28,5 +29,13 @@ public class UserService {
 
     public static void deleteUser(int id) {
         userDAO.delete(id);
+    }
+
+    public static User authenticate(String email, String password) {
+        User user = getUserByEmail(email);
+        if (user != null && user.getPassword().equals(password)) {
+            return user;
+        }
+        return null;
     }
 }

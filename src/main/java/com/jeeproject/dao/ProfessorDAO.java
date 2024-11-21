@@ -31,6 +31,14 @@ public class ProfessorDAO {
         return professor;
     }
 
+    public Professor findByUserId(int userId) {
+        Session session = sessionFactory.openSession();
+        String hql = "FROM Professor s WHERE s.user.id = :userId";
+        Professor professor = session.createQuery(hql, Professor.class).setParameter("userId", userId).uniqueResult();
+        session.close();
+        return professor;
+    }
+
     public List<Professor> findAll() {
         Session session = sessionFactory.openSession();
         List<Professor> professors = session.createQuery("FROM Professor", Professor.class).list();

@@ -17,6 +17,8 @@ public class ProfessorService {
         return professorDAO.findById(id);
     }
 
+    public static Professor getProfessorByUserId(int userId) { return professorDAO.findByUserId(userId); }
+
     public static List<Professor> getAllProfessors() {
         return professorDAO.findAll();
     }

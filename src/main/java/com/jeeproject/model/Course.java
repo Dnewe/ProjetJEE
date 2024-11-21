@@ -9,8 +9,8 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "course_name", nullable = false)
-    private String courseName;
+    @Column(name = "name", nullable = false)
+    private String name;
 
     @Column(name = "description", nullable = false)
     private String description;
@@ -23,8 +23,8 @@ public class Course {
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
-    public String getCourseName() { return courseName; }
-    public void setCourseName(String courseName) { this.courseName = courseName; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
