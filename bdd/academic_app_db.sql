@@ -44,7 +44,7 @@ CREATE TABLE `professor` (
 
 CREATE TABLE `course` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `course_name` varchar(100) NOT NULL,
+  `name` varchar(100) NOT NULL,
   `description` text,
   `professor_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -68,6 +68,8 @@ CREATE TABLE `result` (
   `id` int NOT NULL AUTO_INCREMENT,
   `enrollment_id` int NOT NULL,
   `grade` decimal(5,2) DEFAULT NULL,
+  `max_score` decimal(5,2) DEFAULT NULL,
+  `weight` decimal(5,2) DEFAULT NULL,
   `entry_date` date NOT NULL,
   PRIMARY KEY (`id`),
   KEY `enrollment_id` (`enrollment_id`),
