@@ -5,6 +5,13 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import projet.User;
+import projet.Professor;
+import projet.Grade;
+
 public class UserDAO {
     private String jdbcURL = "jdbc:mysql://localhost:3306/AcademicAppDB";
     private String jdbcUsername = "root";
@@ -55,4 +62,112 @@ public class UserDAO {
             return false;
         }
     }
+    
+    public List<User> getAllUsers() {
+        List<User> userList = new ArrayList<>();
+        String query = "SELECT * FROM user";
+
+        try (Connection connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+             PreparedStatement preparedStatement = connection.prepareStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String email = resultSet.getString("email");
+                String role = resultSet.getString("role");
+
+                userList.add(new User(id, email, role));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return userList;
+    }
+
+    public boolean deleteUser(int userId) {
+        String query = "DELETE FROM user WHERE id = ?";
+        try (Connection connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setInt(1, userId);
+            int rowsAffected = preparedStatement.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    public List<Professor> getAllProfessors() {
+        List<Professor> professors = new ArrayList<>();
+        String sql = "SELECT * FROM user WHERE role = 'professor'";
+        try (Connection connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+             PreparedStatement preparedStatement = connection.prepareStatement(sql);
+             ResultSet rs = preparedStatement.executeQuery()) {
+
+            while (rs.next()) {
+                professors.add(new Professor(
+                    rs.getString("email"),
+                    rs.getString("password"),
+                    rs.getString("lastName"),
+                    rs.getString("firstName"),
+                    rs.getString("contact")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return professors;
+    }
+
+    public String getProfessorNameById(int id) {
+        String sql = "SELECT lastName, firstName FROM user WHERE id = ? AND role = 'professor'";
+        try (Connection connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, id);
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("lastName") + " " + rs.getString("firstName");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    private static final String SELECT_STUDENTS_IN_COURSE = "SELECT u.id, u.email, u.firstName, u.lastName, r.grade, r.date "
+            + "FROM users u "
+            + "JOIN enrollment e ON u.id = e.student_id "
+            + "JOIN result r ON e.id = r.enrollment_id "
+            + "WHERE e.course_id = ? AND u.role = 'student'";
+
+    public List<Grade> getStudentsResultsInCourse(int courseId) {
+        List<Grade> grades = new ArrayList<>();
+        try (Connection connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_STUDENTS_IN_COURSE)) {
+
+            preparedStatement.setInt(1, courseId);
+            ResultSet gradeSet = preparedStatement.executeQuery();
+
+            while (gradeSet.next()) {
+                int enrollmentId = gradeSet.getInt("enrollment_id");
+                String studentFirstName = gradeSet.getString("firstName");
+                String studentLastName = gradeSet.getString("lastName");
+                double grade = gradeSet.getDouble("grade");
+                Date date = gradeSet.getDate("date");
+
+                Grade grade = new Grade(enrollmentId, grade, date);
+                grade.setStudentFirstName(studentFirstName);
+                grade.setStudentLastName(studentLastName);
+                grades.add(grade);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return grades;
+    }
+
 }
