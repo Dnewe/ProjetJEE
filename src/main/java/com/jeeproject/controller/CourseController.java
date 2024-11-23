@@ -31,6 +31,12 @@ public class CourseController extends HttpServlet {
 
         errorMessage = null;
         switch (action) {
+        	case "assignProfessor":
+                resultPage = "/WEB-INF/views/courseDetails.jsp";
+                errorPage = "error.jsp";
+                assignProfessorToCourse(request);
+                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
+                break;
             case "create":
                 resultPage = "";
                 errorPage = "error.jsp";
@@ -82,6 +88,32 @@ public class CourseController extends HttpServlet {
         }
     }
 
+    private void assignProfessorToCourse(HttpServletRequest request) {
+        int courseId = ServletUtil.getIntFromString(request.getParameter("courseId"));
+        int professorId = ServletUtil.getIntFromString(request.getParameter("professor_id"));
+        
+        // Vérification si le cours existe
+        Course course = CourseService.getCourseById(courseId);
+        if (course == null) {
+            errorMessage = "Cours introuvable.";
+            return;
+        }
+
+        // Vérification si le professeur existe
+        Professor professor = ProfessorService.getProfessorById(professorId);
+        if (professor == null) {
+            errorMessage = "Professeur introuvable.";
+            return;
+        }
+
+        // Assigner le professeur au cours
+        course.setProfessor(professor);
+        CourseService.updateCourse(course);
+        
+        // Recharger les informations du cours avec le professeur assigné
+        request.setAttribute("course", course);
+        request.setAttribute("professors", ProfessorService.getAllProfessors()); // Charger la liste des professeurs
+    }
 
     private void createCourse(HttpServletRequest request) {
         // get parameters

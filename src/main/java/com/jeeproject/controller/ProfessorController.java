@@ -1,5 +1,3 @@
-package com.jeeproject.controller;
-
 import com.jeeproject.model.Course;
 import com.jeeproject.model.Professor;
 import com.jeeproject.model.User;
@@ -35,14 +33,21 @@ public class ProfessorController extends HttpServlet {
 
         errorMessage = null;
         switch (action) {
+        	
             case "create":
                 resultPage = "professor?action=list";
                 errorPage = "error.jsp";
                 createProfessor(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
+            case "assignProfessor":
+                resultPage = "/WEB-INF/views/courseDetails.jsp";
+                errorPage = "error.jsp";
+                assignProfessorToCourse(request);
+                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
+                break;
             case "update":
-                resultPage = "WEB-INF/views/professorDetails.jsp";
+                resultPage = "WEB-INF/views/updateProfessor.jsp";
                 errorPage = "error.jsp";
                 updateProfessor(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
@@ -68,6 +73,11 @@ public class ProfessorController extends HttpServlet {
 
         errorMessage = null;
         switch (action) {
+        	case "registerForm":
+        	    resultPage = "WEB-INF/views/registerProfessor.jsp";
+        	    errorPage = "error.jsp";
+        	    ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
+        	    break;
             case "details":
                 resultPage = "WEB-INF/views/professorDetails.jsp";
                 errorPage = "error.jsp";
@@ -97,7 +107,7 @@ public class ProfessorController extends HttpServlet {
             return;
         }
         if (!ServletUtil.validString(firstName)) {
-            errorMessage = "PrÃ©nom invalide.";
+            errorMessage = "Prénom invalide.";
             return;
         }
         if (!ServletUtil.validString(contact)) {
@@ -109,13 +119,13 @@ public class ProfessorController extends HttpServlet {
             return;
         }
         if (ProfessorService.getProfessorByUserId(userId) != null || ProfessorService.getProfessorByUserId(userId) != null) {
-            errorMessage = "Utilisateur dÃ©jÃ  associÃ© Ã  un Ã©tudiant ou professeur.";
+            errorMessage = "Utilisateur déjà associé à un étudiant ou professeur.";
             return;
         }
         // verify user role
         User user = UserService.getUserById(userId);
         if (!user.getRole().equals("professor")) {
-            errorMessage = "Le rÃ´le de l'utilisateur ne correspond pas.";
+            errorMessage = "Le rôle de l'utilisateur ne correspond pas.";
             return;
         }
         // create professor
@@ -159,6 +169,33 @@ public class ProfessorController extends HttpServlet {
         }
         // delete professor
         ProfessorService.deleteProfessor(professorId);
+    }
+    
+    private void assignProfessorToCourse(HttpServletRequest request) {
+        int courseId = ServletUtil.getIntFromString(request.getParameter("courseId"));
+        int professorId = ServletUtil.getIntFromString(request.getParameter("professor_id"));
+        
+        // Vérification si le cours existe
+        Course course = CourseService.getCourseById(courseId);
+        if (course == null) {
+            errorMessage = "Cours introuvable.";
+            return;
+        }
+
+        // Vérification si le professeur existe
+        Professor professor = ProfessorService.getProfessorById(professorId);
+        if (professor == null) {
+            errorMessage = "Professeur introuvable.";
+            return;
+        }
+
+        // Assigner le professeur au cours
+        course.setProfessor(professor);
+        CourseService.updateCourse(course);
+        
+        // Recharger les informations du cours avec le professeur assigné
+        request.setAttribute("course", course);
+        request.setAttribute("professors", ProfessorService.getAllProfessors()); // Charger la liste des professeurs
     }
 
     private void viewProfessor(HttpServletRequest request) {

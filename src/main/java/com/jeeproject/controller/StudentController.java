@@ -69,6 +69,18 @@ public class StudentController extends HttpServlet {
 
         errorMessage = null;
         switch (action) {
+        	case "updateForm":
+        	    resultPage = "WEB-INF/views/updateStudent.jsp";
+        	    errorPage = "error.jsp";
+        	    viewStudent(request); // Charge les informations de l'Ètudiant
+        	    ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
+        	    break;
+        	case "create":
+        	    resultPage = "WEB-INF/views/students.jsp"; 
+        	    errorPage = "error.jsp";
+        	    createStudent(request);
+        	    ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
+        	    break;
             case "details":
                 resultPage = "WEB-INF/views/studentDetails.jsp";
                 errorPage = "error.jsp";
@@ -105,7 +117,7 @@ public class StudentController extends HttpServlet {
             return;
         }
         if (!ServletUtil.validString(firstName)) {
-            errorMessage = "Pr√©nom invalide.";
+            errorMessage = "PrÈnom invalide.";
             return;
         }
         if (!ServletUtil.validString(contact)) {
@@ -121,13 +133,13 @@ public class StudentController extends HttpServlet {
             return;
         }
         if (StudentService.getStudentByUserId(userId) != null || ProfessorService.getProfessorByUserId(userId) != null) {
-            errorMessage = "Utilisateur d√©j√† associ√© √† un √©tudiant ou professeur.";
+            errorMessage = "Utilisateur dÈj‡ associÈ ‡ un Ètudiant ou professeur.";
             return;
         }
         // verify user role
         User user = UserService.getUserById(userId);
         if (!user.getRole().equals("student")) {
-            errorMessage = "Le r√¥le de l'utilisateur ne correspond pas.";
+            errorMessage = "Le rÙle de l'utilisateur ne correspond pas.";
             return;
         }
         // create student
