@@ -4,28 +4,28 @@ import com.jeeproject.model.Enrollment;
 import com.jeeproject.service.CourseService;
 import com.jeeproject.service.EnrollmentService;
 import com.jeeproject.service.StudentService;
-import com.jeeproject.service.UserService;
 import com.jeeproject.util.ServletUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.util.Date;
 
 @WebServlet(name = "EnrollmentController", urlPatterns = "/enrollment")
 public class EnrollmentController extends HttpServlet {
 
-    String resultPage;
-    String errorPage;
-    String errorMessage;
+    private String resultPage;
+    private String errorPage = "error.jsp";
+    private String errorMessage;
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
 
-        if (action==null) {
+        if (action == null) {
             ServletUtil.invalidAction(request, response);
             return;
         }
@@ -34,98 +34,121 @@ public class EnrollmentController extends HttpServlet {
         switch (action) {
             case "create":
                 resultPage = "enrollment?action=list";
-                errorPage = "error.jsp";
                 createEnrollment(request);
-                ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "update":
-                resultPage = "";
-                errorPage = "error.jsp";
+                resultPage = "enrollment?action=list";
                 updateEnrollment(request);
-                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "delete":
                 resultPage = "enrollment?action=list";
-                errorPage = "error.jsp";
                 deleteEnrollment(request);
-                ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             default:
                 ServletUtil.invalidAction(request, response);
+                return;
         }
+
+        ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
     }
 
-
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
 
-        if (action==null) {
+        if (action == null) {
             ServletUtil.invalidAction(request, response);
             return;
         }
 
         errorMessage = null;
         switch (action) {
+            case "list":
+                resultPage = "WEB-INF/views/enrollments.jsp";
+                listEnrollments(request);
+                break;
+            case "view":
+                resultPage = "WEB-INF/views/studentEnrollments.jsp";
+                viewStudentEnrollments(request);
+                break;
             default:
                 ServletUtil.invalidAction(request, response);
+                return;
         }
+
+        ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
     }
 
-
     private void createEnrollment(HttpServletRequest request) {
-        // get parameters
         Date enrollmentDate = ServletUtil.getDateFromString(request.getParameter("enrollment_date"));
         int courseId = ServletUtil.getIntFromString(request.getParameter("course_id"));
         int studentId = ServletUtil.getIntFromString(request.getParameter("student_id"));
-        // verify parameters
+
         if (enrollmentDate == null) {
             errorMessage = "Date invalide. Utilisez le format yyyy-MM-dd.";
             return;
         }
-        if (courseId == -1 || UserService.getUserById(courseId) == null) {
+
+        if (courseId == -1 || CourseService.getCourseById(courseId) == null) {
             errorMessage = "Cours introuvable.";
             return;
         }
-        if (studentId == -1 || UserService.getUserById(studentId) == null) {
-            errorMessage = "Etudiant introuvable.";
+
+        if (studentId == -1 || StudentService.getStudentById(studentId) == null) {
+            errorMessage = "Étudiant introuvable.";
             return;
         }
-        // create enrollment
+
         Enrollment enrollment = new Enrollment();
         enrollment.setEnrollmentDate(enrollmentDate);
         enrollment.setCourse(CourseService.getCourseById(courseId));
         enrollment.setStudent(StudentService.getStudentById(studentId));
-        // add enrollment
+
         EnrollmentService.addEnrollment(enrollment);
     }
 
-
     private void updateEnrollment(HttpServletRequest request) {
-        // get parameters
         int enrollmentId = ServletUtil.getIntFromString(request.getParameter("id"));
         Date enrollmentDate = ServletUtil.getDateFromString(request.getParameter("enrollment_date"));
-        // verify parameters
+
+        Enrollment enrollment = EnrollmentService.getEnrollmentById(enrollmentId);
+        if (enrollment == null) {
+            errorMessage = "Inscription introuvable.";
+            return;
+        }
+
+        if (enrollmentDate != null) {
+            enrollment.setEnrollmentDate(enrollmentDate);
+        }
+
+        EnrollmentService.updateEnrollment(enrollment);
+    }
+
+    private void deleteEnrollment(HttpServletRequest request) {
+        int enrollmentId = ServletUtil.getIntFromString(request.getParameter("id"));
+
         if (enrollmentId == -1 || EnrollmentService.getEnrollmentById(enrollmentId) == null) {
             errorMessage = "Inscription introuvable.";
             return;
         }
-        // update enrollment
-        Enrollment enrollment = EnrollmentService.getEnrollmentById(enrollmentId);
-        if (enrollmentDate != null) {enrollment.setEnrollmentDate(enrollmentDate);}
-        EnrollmentService.updateEnrollment(enrollment);
-        request.setAttribute("enrollment", enrollment);
+
+        EnrollmentService.deleteEnrollment(enrollmentId);
     }
 
+    private void listEnrollments(HttpServletRequest request) {
+        request.setAttribute("enrollments", EnrollmentService.getAllEnrollments());
+    }
 
-    private  void deleteEnrollment(HttpServletRequest request) {
-        // get parameters
-        int enrollmentId = ServletUtil.getIntFromString(request.getParameter("id"));
-        // verify parameters
-        if (enrollmentId == -1 || EnrollmentService.getEnrollmentById(enrollmentId) == null) {
-            errorMessage = "Utilisateur introuvable.";
+    private void viewStudentEnrollments(HttpServletRequest request) {
+        int studentId = ServletUtil.getIntFromString(request.getParameter("studentId"));
+
+        if (studentId == -1 || StudentService.getStudentById(studentId) == null) {
+            errorMessage = "Étudiant introuvable.";
             return;
         }
-        // delete enrollment
-        EnrollmentService.deleteEnrollment(enrollmentId);
+
+        request.setAttribute("student", StudentService.getStudentById(studentId));
+        request.setAttribute("enrolledCourses", EnrollmentService.getCoursesByStudent(studentId));
+        request.setAttribute("availableCourses", CourseService.getCoursesNotEnrolledByStudent(studentId));
     }
 }
