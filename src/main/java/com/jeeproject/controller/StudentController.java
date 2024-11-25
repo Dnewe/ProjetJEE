@@ -164,6 +164,7 @@ public class StudentController extends HttpServlet {
         student.setUser(UserService.getUserById(userId));
         // add student
         StudentService.addStudent(student);
+        notifyStudentEnrollmentChange(student, "Inscription ajoutée");
     }
     
     private void viewEnrolledCourses(HttpServletRequest request) {
@@ -215,6 +216,7 @@ public class StudentController extends HttpServlet {
         }
         // delete student
         StudentService.deleteStudent(studentId);
+        notifyStudentEnrollmentChange(student, "Inscription supprimée");
     }
 
     private void viewStudent(HttpServletRequest request) {
@@ -234,10 +236,37 @@ public class StudentController extends HttpServlet {
     }
 
     private void viewStudents(HttpServletRequest request) {
-        List<Student> students = StudentService.getAllStudents();
+        // Récupérer les paramètres de filtrage
+        String search = request.getParameter("search");
+        String courseIdParam = request.getParameter("courseId");
+        int courseId = (courseIdParam != null && !courseIdParam.isEmpty()) ? Integer.parseInt(courseIdParam) : -1;
+
+        // Récupérer la liste des étudiants filtrés
+        List<Student> students = StudentService.getFilteredStudents(search, courseId);
         request.setAttribute("students", students);
+
+        // Récupérer la liste des cours pour le menu déroulant
+        List<Course> courses = CourseService.getAllCourses();
+        request.setAttribute("courses", courses);
+    }
+    
+    private void notifyStudentEnrollmentChange(Student student, String changeType) {
+        String subject = "Changement dans votre inscription";
+        String message = String.format(
+            "Bonjour %s,\n\nNous vous informons qu'un changement a été effectué dans votre inscription : %s.\n\nCordialement,\nL'équipe de gestion",
+            student.getFirstName(),
+            changeType
+        );
+
+        try {
+            EmailUtil.sendEmail(student.getUser().getEmail(), subject, message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            System.err.println("Échec de l'envoi de l'email à l'étudiant : " + student.getId());
+        }
     }
 
+    
     private void viewCourseStudents(HttpServletRequest request) {
         // get parameters
         int courseId = ServletUtil.getIntFromString(request.getParameter("course_id"));
@@ -265,4 +294,22 @@ public class StudentController extends HttpServlet {
         response.setHeader("Content-Disposition", "attachment; filename=transcript.pdf");
         response.getOutputStream().write(transcript);
     }
+    
+    private void notifyStudentGradePublication(Student student, String courseName, double grade) {
+        String subject = "Nouvelle note publiée";
+        String message = String.format(
+            "Bonjour %s,\n\nUne nouvelle note a été publiée pour le cours : %s.\n\nNote obtenue : %.2f\n\nCordialement,\nL'équipe de gestion",
+            student.getFirstName(),
+            courseName,
+            grade
+        );
+
+        try {
+            EmailUtil.sendEmail(student.getUser().getEmail(), subject, message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            System.err.println("Échec de l'envoi de l'email pour la publication de la note.");
+        }
+    }
+
 }

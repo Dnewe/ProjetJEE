@@ -117,7 +117,7 @@ public class ResultController extends HttpServlet {
             return;
         }
         if (enrollmentId == -1 || EnrollmentService.getEnrollmentById(enrollmentId) == null) {
-            errorMessage = "L'Ã©tudiant n'est pas inscrit au cours.";
+            errorMessage = "L'étudiant n'est pas inscrit au cours.";
             return;
         }
         // create result
@@ -202,6 +202,19 @@ public class ResultController extends HttpServlet {
         Map<Course, List<Result>> resultsByCourse = ResultService.getResultsByStudentIdGroupedByCourse(studentId);
         request.setAttribute("resultsByCourse", resultsByCourse);
     }
+    
+    public void publishGrade(int studentId, int courseId, double grade) {
+        // Logique pour ajouter/modifier une note
+        GradeService.addGrade(studentId, courseId, grade);
+
+        // Récupérer les informations de l'étudiant et du cours
+        Student student = StudentService.getStudentById(studentId);
+        Course course = CourseService.getCourseById(courseId);
+
+        // Notifier l'étudiant
+        notifyStudentGradePublication(student, course.getName(), grade);
+    }
+
 
     private void viewTranscript(HttpServletRequest request) {
         // TODO
