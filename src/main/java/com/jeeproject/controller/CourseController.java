@@ -114,6 +114,61 @@ public class CourseController extends HttpServlet {
         request.setAttribute("course", course);
         request.setAttribute("professors", ProfessorService.getAllProfessors()); // Charger la liste des professeurs
     }
+    
+    private void removeStudentFromCourse(HttpServletRequest request) {
+        int courseId = ServletUtil.getIntFromString(request.getParameter("courseId"));
+        int studentId = ServletUtil.getIntFromString(request.getParameter("studentId"));
+
+        // Vérifiez si le cours et l'étudiant existent
+        Course course = CourseService.getCourseById(courseId);
+        Student student = StudentService.getStudentById(studentId);
+
+        if (course == null) {
+            errorMessage = "Cours introuvable.";
+            return;
+        }
+
+        if (student == null) {
+            errorMessage = "Étudiant introuvable.";
+            return;
+        }
+
+        // Supprimez l'étudiant du cours
+        CourseService.removeStudentFromCourse(courseId, studentId);
+
+        // Rechargez les données pour la page
+        request.setAttribute("course", course);
+        request.setAttribute("enrolledStudents", CourseService.getStudentsByCourse(courseId));
+        request.setAttribute("availableStudents", StudentService.getStudentsNotEnrolledInCourse(courseId));
+    }
+
+    private void assignStudentToCourse(HttpServletRequest request) {
+        int courseId = ServletUtil.getIntFromString(request.getParameter("courseId"));
+        int studentId = ServletUtil.getIntFromString(request.getParameter("studentId"));
+
+        // Vérifiez si le cours et l'étudiant existent
+        Course course = CourseService.getCourseById(courseId);
+        Student student = StudentService.getStudentById(studentId);
+
+        if (course == null) {
+            errorMessage = "Cours introuvable.";
+            return;
+        }
+
+        if (student == null) {
+            errorMessage = "Étudiant introuvable.";
+            return;
+        }
+
+        // Ajoutez l'étudiant au cours
+        CourseService.addStudentToCourse(courseId, studentId);
+
+        // Rechargez les données pour la page
+        request.setAttribute("course", course);
+        request.setAttribute("enrolledStudents", CourseService.getStudentsByCourse(courseId));
+        request.setAttribute("availableStudents", StudentService.getStudentsNotEnrolledInCourse(courseId));
+    }
+
 
     private void createCourse(HttpServletRequest request) {
         // get parameters

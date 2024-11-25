@@ -28,10 +28,11 @@ public class StudentController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-
-        if (action==null) {
+        
+        if ("generateTranscript".equals(action)) {
+            generateTranscript(request, response);
+        } else {
             ServletUtil.invalidAction(request, response);
-            return;
         }
 
         errorMessage = null;
@@ -99,6 +100,18 @@ public class StudentController extends HttpServlet {
                 viewCourseStudents(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
+            case "viewEnrolledCourses":
+                resultPage = "WEB-INF/views/viewEnrolledCourses.jsp";
+                errorPage = "error.jsp";
+                viewEnrolledCourses(request);
+                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
+                break;
+            case "viewGrades":
+                resultPage = "WEB-INF/views/viewGrades.jsp";
+                errorPage = "error.jsp";
+                viewGrades(request);
+                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
+                break;
             default:
                 ServletUtil.invalidAction(request, response);
         }
@@ -151,6 +164,22 @@ public class StudentController extends HttpServlet {
         student.setUser(UserService.getUserById(userId));
         // add student
         StudentService.addStudent(student);
+    }
+    
+    private void viewEnrolledCourses(HttpServletRequest request) {
+        int studentId = (int) request.getSession().getAttribute("studentId");
+
+        // Fetch enrolled courses from the service
+        List<Course> enrolledCourses = CourseService.getCoursesByStudentId(studentId);
+        request.setAttribute("enrolledCourses", enrolledCourses);
+    }
+    
+    private void viewGrades(HttpServletRequest request) {
+        int studentId = (int) request.getSession().getAttribute("studentId");
+
+        // Fetch grades and averages from the service
+        List<Grade> grades = GradeService.getGradesByStudentId(studentId);
+        request.setAttribute("grades", grades);
     }
 
     private void updateStudent(HttpServletRequest request) {
@@ -220,5 +249,20 @@ public class StudentController extends HttpServlet {
         // get students
         List<Student> students = StudentService.getStudentsByCourseId(courseId);
         request.setAttribute("students", students);
+    }
+    
+    private void generateTranscript(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int studentId = (int) request.getSession().getAttribute("studentId");
+
+        // Fetch grades
+        List<Grade> grades = GradeService.getGradesByStudentId(studentId);
+
+        // Generate transcript (PDF or other format)
+        byte[] transcript = TranscriptGenerator.generate(grades);
+
+        // Send the transcript as a download
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=transcript.pdf");
+        response.getOutputStream().write(transcript);
     }
 }

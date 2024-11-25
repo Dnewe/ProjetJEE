@@ -1,8 +1,12 @@
+package com.jeeproject.controller;
+
 import com.jeeproject.model.Course;
 import com.jeeproject.model.Professor;
+import com.jeeproject.model.Student;
 import com.jeeproject.model.User;
 import com.jeeproject.service.CourseService;
 import com.jeeproject.service.ProfessorService;
+import com.jeeproject.service.StudentService;
 import com.jeeproject.service.UserService;
 import com.jeeproject.util.ServletUtil;
 import jakarta.servlet.ServletException;
@@ -12,39 +16,32 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @WebServlet(name = "ProfessorController", urlPatterns = "/professor")
 public class ProfessorController extends HttpServlet {
 
-    String resultPage;
-    String errorPage;
-    String errorMessage;
+    private String resultPage;
+    private String errorPage;
+    private String errorMessage;
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
 
-        if (action==null) {
+        if (action == null) {
             ServletUtil.invalidAction(request, response);
             return;
         }
 
         errorMessage = null;
         switch (action) {
-        	
             case "create":
                 resultPage = "professor?action=list";
                 errorPage = "error.jsp";
                 createProfessor(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
-                break;
-            case "assignProfessor":
-                resultPage = "/WEB-INF/views/courseDetails.jsp";
-                errorPage = "error.jsp";
-                assignProfessorToCourse(request);
-                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "update":
                 resultPage = "WEB-INF/views/updateProfessor.jsp";
@@ -58,26 +55,33 @@ public class ProfessorController extends HttpServlet {
                 deleteProfessor(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
+            case "saveGrades":
+                resultPage = "professor?action=submitGrades";
+                errorPage = "error.jsp";
+                saveGrades(request);
+                ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
+                break;
             default:
                 ServletUtil.invalidAction(request, response);
         }
     }
 
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
 
-        if (action==null) {
+        if (action == null) {
             ServletUtil.invalidAction(request, response);
             return;
         }
 
         errorMessage = null;
         switch (action) {
-        	case "registerForm":
-        	    resultPage = "WEB-INF/views/registerProfessor.jsp";
-        	    errorPage = "error.jsp";
-        	    ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
-        	    break;
+            case "registerForm":
+                resultPage = "WEB-INF/views/registerProfessor.jsp";
+                errorPage = "error.jsp";
+                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
+                break;
             case "details":
                 resultPage = "WEB-INF/views/professorDetails.jsp";
                 errorPage = "error.jsp";
@@ -90,18 +94,23 @@ public class ProfessorController extends HttpServlet {
                 viewProfessors(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
+            case "submitGrades":
+                resultPage = "WEB-INF/views/gradeSubmission.jsp";
+                errorPage = "error.jsp";
+                submitGrades(request);
+                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
+                break;
             default:
                 ServletUtil.invalidAction(request, response);
         }
     }
 
     private void createProfessor(HttpServletRequest request) {
-        // get parameters
         String lastName = request.getParameter("last_name");
         String firstName = request.getParameter("first_name");
         String contact = request.getParameter("contact");
         int userId = ServletUtil.getIntFromString(request.getParameter("user_id"));
-        // verify parameters
+
         if (!ServletUtil.validString(lastName)) {
             errorMessage = "Nom invalide.";
             return;
@@ -115,101 +124,70 @@ public class ProfessorController extends HttpServlet {
             return;
         }
         if (userId == -1 || UserService.getUserById(userId) == null) {
-            errorMessage = "Utilisateur introuvable";
+            errorMessage = "Utilisateur introuvable.";
             return;
         }
-        if (ProfessorService.getProfessorByUserId(userId) != null || ProfessorService.getProfessorByUserId(userId) != null) {
+        if (ProfessorService.getProfessorByUserId(userId) != null || StudentService.getStudentByUserId(userId) != null) {
             errorMessage = "Utilisateur déjà associé à un étudiant ou professeur.";
             return;
         }
-        // verify user role
+
         User user = UserService.getUserById(userId);
-        if (!user.getRole().equals("professor")) {
+        if (!"professor".equals(user.getRole())) {
             errorMessage = "Le rôle de l'utilisateur ne correspond pas.";
             return;
         }
-        // create professor
+
         Professor professor = new Professor();
         professor.setLastName(lastName);
         professor.setFirstName(firstName);
         professor.setContact(contact);
-        professor.setUser(UserService.getUserById(userId));
-        // add professor
+        professor.setUser(user);
+
         ProfessorService.addProfessor(professor);
     }
 
     private void updateProfessor(HttpServletRequest request) {
-        // get parameters
         String lastName = request.getParameter("last_name");
         String firstName = request.getParameter("first_name");
         String contact = request.getParameter("contact");
         int professorId = ServletUtil.getIntFromString(request.getParameter("id"));
-        // verify parameters
-        if (professorId == -1 || ProfessorService.getProfessorById(professorId) == null) {
-            errorMessage = "Etudiant introuvable.";
-            return;
-        }
-        // update professor
-        Professor professor = ProfessorService.getProfessorById(professorId);
-        if (ServletUtil.validString(lastName)) { professor.setLastName(lastName); }
-        if (ServletUtil.validString(firstName)) { professor.setFirstName(firstName); }
-        if (ServletUtil.validString(contact)) { professor.setContact(contact); }
-        // apply changes
-        ProfessorService.updateProfessor(professor);
-        request.setAttribute("professor", professor);
-    }
 
-    private  void deleteProfessor(HttpServletRequest request) {
-        // get parameters
-        int professorId = ServletUtil.getIntFromString(request.getParameter("id"));
-        // verify parameters
         if (professorId == -1 || ProfessorService.getProfessorById(professorId) == null) {
-            errorMessage = "Etudiant introuvable.";
-            return;
-        }
-        // delete professor
-        ProfessorService.deleteProfessor(professorId);
-    }
-    
-    private void assignProfessorToCourse(HttpServletRequest request) {
-        int courseId = ServletUtil.getIntFromString(request.getParameter("courseId"));
-        int professorId = ServletUtil.getIntFromString(request.getParameter("professor_id"));
-        
-        // Vérification si le cours existe
-        Course course = CourseService.getCourseById(courseId);
-        if (course == null) {
-            errorMessage = "Cours introuvable.";
-            return;
-        }
-
-        // Vérification si le professeur existe
-        Professor professor = ProfessorService.getProfessorById(professorId);
-        if (professor == null) {
             errorMessage = "Professeur introuvable.";
             return;
         }
 
-        // Assigner le professeur au cours
-        course.setProfessor(professor);
-        CourseService.updateCourse(course);
-        
-        // Recharger les informations du cours avec le professeur assigné
-        request.setAttribute("course", course);
-        request.setAttribute("professors", ProfessorService.getAllProfessors()); // Charger la liste des professeurs
+        Professor professor = ProfessorService.getProfessorById(professorId);
+        if (ServletUtil.validString(lastName)) professor.setLastName(lastName);
+        if (ServletUtil.validString(firstName)) professor.setFirstName(firstName);
+        if (ServletUtil.validString(contact)) professor.setContact(contact);
+
+        ProfessorService.updateProfessor(professor);
+    }
+
+    private void deleteProfessor(HttpServletRequest request) {
+        int professorId = ServletUtil.getIntFromString(request.getParameter("id"));
+
+        if (professorId == -1 || ProfessorService.getProfessorById(professorId) == null) {
+            errorMessage = "Professeur introuvable.";
+            return;
+        }
+
+        ProfessorService.deleteProfessor(professorId);
     }
 
     private void viewProfessor(HttpServletRequest request) {
-        // get parameters
         int professorId = ServletUtil.getIntFromString(request.getParameter("id"));
-        // verify parameters
+
         if (professorId == -1 || ProfessorService.getProfessorById(professorId) == null) {
-            errorMessage = "Utilisateur introuvable.";
+            errorMessage = "Professeur introuvable.";
             return;
         }
-        // get professor
+
         Professor professor = ProfessorService.getProfessorById(professorId);
         request.setAttribute("professor", professor);
-        // get professor courses
+
         List<Course> courses = CourseService.getCoursesByProfessorId(professorId);
         request.setAttribute("courses", courses);
     }
@@ -217,5 +195,42 @@ public class ProfessorController extends HttpServlet {
     private void viewProfessors(HttpServletRequest request) {
         List<Professor> professors = ProfessorService.getAllProfessors();
         request.setAttribute("professors", professors);
+    }
+
+    private void submitGrades(HttpServletRequest request) {
+        int professorId = ServletUtil.getIntFromString((String) request.getSession().getAttribute("professorId"));
+        int courseId = ServletUtil.getIntFromString(request.getParameter("course_id"));
+
+        if (professorId == -1) {
+            errorMessage = "Professeur non identifié.";
+            return;
+        }
+
+        request.setAttribute("courses", CourseService.getCoursesByProfessor(professorId));
+
+        if (courseId != -1) {
+            request.setAttribute("selectedCourseId", courseId);
+            request.setAttribute("students", StudentService.getStudentsByCourse(courseId));
+        }
+    }
+
+    private void saveGrades(HttpServletRequest request) {
+        int courseId = ServletUtil.getIntFromString(request.getParameter("course_id"));
+
+        if (courseId == -1 || CourseService.getCourseById(courseId) == null) {
+            errorMessage = "Cours introuvable.";
+            return;
+        }
+
+        Map<String, String[]> gradeParams = request.getParameterMap();
+
+        for (String paramName : gradeParams.keySet()) {
+            if (paramName.startsWith("grades[")) {
+                int studentId = Integer.parseInt(paramName.substring(7, paramName.length() - 1));
+                double grade = Double.parseDouble(gradeParams.get(paramName)[0]);
+
+                ProfessorService.updateStudentGrade(courseId, studentId, grade);
+            }
+        }
     }
 }
