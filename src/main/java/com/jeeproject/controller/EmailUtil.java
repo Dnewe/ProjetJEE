@@ -1,18 +1,18 @@
 à ajouter dans le pom.xml 
 <dependency>
-    <groupId>javax.mail</groupId>
-    <artifactId>javax.mail-api</artifactId>
+    <groupId>jakarta.mail</groupId>
+    <artifactId>jakarta.mail-api</artifactId>
     <version>1.6.2</version>
 </dependency>
 <dependency>
-    <groupId>com.sun.mail</groupId>
-    <artifactId>javax.mail</artifactId>
-    <version>1.6.2</version>
+<groupId>com.sun.mail</groupId>
+<artifactId>jakarta.mail</artifactId>
+<version>2.0.1</version>
 </dependency>
 
 
-import javax.mail.*;
-import javax.mail.internet.*;
+import jakarta.mail.*;
+import jakarta.mail.internet.*;
 import java.util.Properties;
 
 public class EmailUtil {
