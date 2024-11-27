@@ -73,4 +73,13 @@ public class StudentDAO {
         transaction.commit();
         session.close();
     }
+
+    public List<Student> findFilteredStudents(String search, int courseId) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
+        List<Student> students = null;
+        transaction.commit();
+        session.close();
+        return students;
+    }
 }

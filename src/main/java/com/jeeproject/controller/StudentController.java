@@ -1,13 +1,14 @@
 package com.jeeproject.controller;
 
 import com.jeeproject.model.Course;
+import com.jeeproject.model.Result;
 import com.jeeproject.model.Student;
 import com.jeeproject.model.User;
-import com.jeeproject.service.CourseService;
-import com.jeeproject.service.ProfessorService;
-import com.jeeproject.service.StudentService;
-import com.jeeproject.service.UserService;
+import com.jeeproject.service.*;
+import com.jeeproject.util.EmailUtil;
 import com.jeeproject.util.ServletUtil;
+import com.jeeproject.util.TypeUtil;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -17,6 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @WebServlet(name = "StudentController", urlPatterns = "/student")
 public class StudentController extends HttpServlet {
@@ -28,12 +30,6 @@ public class StudentController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        
-        if ("generateTranscript".equals(action)) {
-            generateTranscript(request, response);
-        } else {
-            ServletUtil.invalidAction(request, response);
-        }
 
         errorMessage = null;
         switch (action) {
@@ -44,7 +40,7 @@ public class StudentController extends HttpServlet {
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "update":
-                resultPage = "WEB-INF/views/studentDetails.jsp";
+                resultPage = "WEB-INF/adminPages/students/studentDetails.jsp";
                 errorPage = "error.jsp";
                 updateStudent(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
@@ -71,43 +67,43 @@ public class StudentController extends HttpServlet {
         errorMessage = null;
         switch (action) {
         	case "updateForm":
-        	    resultPage = "WEB-INF/views/updateStudent.jsp";
+        	    resultPage = "WEB-INF/adminPages/student/updateStudent.jsp";
         	    errorPage = "error.jsp";
-        	    viewStudent(request); // Charge les informations de l'étudiant
+        	    viewStudent(request); // Charge les informations de l'Ã©tudiant
         	    ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
         	    break;
         	case "create":
-        	    resultPage = "WEB-INF/views/students.jsp"; 
+        	    resultPage = "WEB-INF/adminPages/student/students.jsp";
         	    errorPage = "error.jsp";
         	    createStudent(request);
         	    ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
         	    break;
             case "details":
-                resultPage = "WEB-INF/views/studentDetails.jsp";
+                resultPage = "WEB-INF/adminPages/student/studentDetails.jsp";
                 errorPage = "error.jsp";
                 viewStudent(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "list":
-                resultPage = "WEB-INF/views/students.jsp";
+                resultPage = "WEB-INF/adminPages/student/students.jsp";
                 errorPage = "error.jsp";
                 viewStudents(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "course_list":
-                resultPage = "WEB-INF/views/students.jsp";
+                resultPage = "WEB-INF/adminPages/student/students.jsp";
                 errorPage = "error.jsp";
                 viewCourseStudents(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "viewEnrolledCourses":
-                resultPage = "WEB-INF/views/viewEnrolledCourses.jsp";
+                resultPage = "WEB-INF/adminPages/student/viewEnrolledCourses.jsp";
                 errorPage = "error.jsp";
                 viewEnrolledCourses(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "viewGrades":
-                resultPage = "WEB-INF/views/viewGrades.jsp";
+                resultPage = "WEB-INF/adminPages/student/viewGrades.jsp";
                 errorPage = "error.jsp";
                 viewGrades(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
@@ -119,18 +115,18 @@ public class StudentController extends HttpServlet {
 
     private void createStudent(HttpServletRequest request) {
         // get parameters
-        String lastName = request.getParameter("last_name");
-        String firstName = request.getParameter("first_name");
+        String lastName = request.getParameter("last-name");
+        String firstName = request.getParameter("first-name");
         String contact = request.getParameter("contact");
-        Date dateOfBirth = ServletUtil.getDateFromString(request.getParameter("date_of_birth"));
-        int userId = ServletUtil.getIntFromString(request.getParameter("user_id"));
+        Date dateOfBirth = TypeUtil.getDateFromString(request.getParameter("date-of-birth"));
+        int userId = TypeUtil.getIntFromString(request.getParameter("user-id"));
         // verify parameters
         if (!ServletUtil.validString(lastName)) {
             errorMessage = "Nom invalide.";
             return;
         }
         if (!ServletUtil.validString(firstName)) {
-            errorMessage = "Prénom invalide.";
+            errorMessage = "PrÃ©nom invalide.";
             return;
         }
         if (!ServletUtil.validString(contact)) {
@@ -146,13 +142,13 @@ public class StudentController extends HttpServlet {
             return;
         }
         if (StudentService.getStudentByUserId(userId) != null || ProfessorService.getProfessorByUserId(userId) != null) {
-            errorMessage = "Utilisateur déjà associé à un étudiant ou professeur.";
+            errorMessage = "Utilisateur dÃ©jÃ  associÃ© Ã  un Ã©tudiant ou professeur.";
             return;
         }
         // verify user role
         User user = UserService.getUserById(userId);
         if (!user.getRole().equals("student")) {
-            errorMessage = "Le rôle de l'utilisateur ne correspond pas.";
+            errorMessage = "Le role de l'utilisateur ne correspond pas.";
             return;
         }
         // create student
@@ -164,32 +160,32 @@ public class StudentController extends HttpServlet {
         student.setUser(UserService.getUserById(userId));
         // add student
         StudentService.addStudent(student);
-        notifyStudentEnrollmentChange(student, "Inscription ajoutée");
+        notifyStudentEnrollmentChange(student, "Inscription ajoutÃ©e");
     }
     
     private void viewEnrolledCourses(HttpServletRequest request) {
-        int studentId = (int) request.getSession().getAttribute("studentId");
+        int studentId = (int) request.getSession().getAttribute("student-id");
 
         // Fetch enrolled courses from the service
         List<Course> enrolledCourses = CourseService.getCoursesByStudentId(studentId);
-        request.setAttribute("enrolledCourses", enrolledCourses);
+        request.setAttribute("enrolled-courses", enrolledCourses);
     }
     
     private void viewGrades(HttpServletRequest request) {
-        int studentId = (int) request.getSession().getAttribute("studentId");
+        int studentId = (int) request.getSession().getAttribute("student-id");
 
         // Fetch grades and averages from the service
-        List<Grade> grades = GradeService.getGradesByStudentId(studentId);
+        Map<Course, List<Result>> grades = ResultService.getResultsByStudentIdGroupedByCourse(studentId);
         request.setAttribute("grades", grades);
     }
 
     private void updateStudent(HttpServletRequest request) {
         // get parameters
-        String lastName = request.getParameter("last_name");
-        String firstName = request.getParameter("first_name");
+        String lastName = request.getParameter("last-name");
+        String firstName = request.getParameter("first-name");
         String contact = request.getParameter("contact");
-        Date dateOfBirth = ServletUtil.getDateFromString(request.getParameter("date_of_birth"));
-        int studentId = ServletUtil.getIntFromString(request.getParameter("id"));
+        Date dateOfBirth = TypeUtil.getDateFromString(request.getParameter("date-of-birth"));
+        int studentId = TypeUtil.getIntFromString(request.getParameter("student-id"));
         // verify parameters
         if (studentId == -1 || StudentService.getStudentById(studentId) == null) {
             errorMessage = "Etudiant introuvable.";
@@ -208,7 +204,7 @@ public class StudentController extends HttpServlet {
 
     private  void deleteStudent(HttpServletRequest request) {
         // get parameters
-        int studentId = ServletUtil.getIntFromString(request.getParameter("id"));
+        int studentId = TypeUtil.getIntFromString(request.getParameter("student-id"));
         // verify parameters
         if (studentId == -1 || StudentService.getStudentById(studentId) == null) {
             errorMessage = "Etudiant introuvable.";
@@ -216,12 +212,13 @@ public class StudentController extends HttpServlet {
         }
         // delete student
         StudentService.deleteStudent(studentId);
-        notifyStudentEnrollmentChange(student, "Inscription supprimée");
+        Student student = StudentService.getStudentById(studentId);
+        notifyStudentEnrollmentChange(student, "Inscription supprimÃ©e");
     }
 
     private void viewStudent(HttpServletRequest request) {
         // get parameters
-        int studentId = ServletUtil.getIntFromString(request.getParameter("id"));
+        int studentId = TypeUtil.getIntFromString(request.getParameter("student-id"));
         // verify parameters
         if (studentId == -1 || StudentService.getStudentById(studentId) == null) {
             errorMessage = "Utilisateur introuvable.";
@@ -231,21 +228,26 @@ public class StudentController extends HttpServlet {
         Student student = StudentService.getStudentById(studentId);
         request.setAttribute("student", student);
         // get student courses
-        List<Course> courses = CourseService.getCoursesByStudentId(studentId);
-        request.setAttribute("courses", courses);
+        List<Course> enrolledCourses = CourseService.getCoursesByStudentId(studentId);
+        request.setAttribute("enrolledCourses", enrolledCourses);
+        // get avalaible courses
+        List<Course> availableCourses = CourseService.getAllCourses();
+        availableCourses.removeAll(enrolledCourses);
+        request.setAttribute("availableCourses", availableCourses);
     }
 
     private void viewStudents(HttpServletRequest request) {
-        // Récupérer les paramètres de filtrage
+        // RÃ©cupÃ©rer les paramÃ¨tres de filtrage
         String search = request.getParameter("search");
-        String courseIdParam = request.getParameter("courseId");
+        String courseIdParam = request.getParameter("course-id");
         int courseId = (courseIdParam != null && !courseIdParam.isEmpty()) ? Integer.parseInt(courseIdParam) : -1;
 
-        // Récupérer la liste des étudiants filtrés
-        List<Student> students = StudentService.getFilteredStudents(search, courseId);
+        // RÃ©cupÃ©rer la liste des Ã©tudiants filtrÃ©s
+        // TODO
+        List<Student> students = StudentService.getAllStudents();//StudentService.getFilteredStudents(search, courseId);
         request.setAttribute("students", students);
 
-        // Récupérer la liste des cours pour le menu déroulant
+        // RÃ©cupÃ©rer la liste des cours pour le menu dÃ©roulant
         List<Course> courses = CourseService.getAllCourses();
         request.setAttribute("courses", courses);
     }
@@ -253,7 +255,7 @@ public class StudentController extends HttpServlet {
     private void notifyStudentEnrollmentChange(Student student, String changeType) {
         String subject = "Changement dans votre inscription";
         String message = String.format(
-            "Bonjour %s,\n\nNous vous informons qu'un changement a été effectué dans votre inscription : %s.\n\nCordialement,\nL'équipe de gestion",
+            "Bonjour %s,\n\nNous vous informons qu'un changement a ï¿½tï¿½ effectuï¿½ dans votre inscription : %s.\n\nCordialement,\nL'ï¿½quipe de gestion",
             student.getFirstName(),
             changeType
         );
@@ -262,14 +264,14 @@ public class StudentController extends HttpServlet {
             EmailUtil.sendEmail(student.getUser().getEmail(), subject, message);
         } catch (MessagingException e) {
             e.printStackTrace();
-            System.err.println("Échec de l'envoi de l'email à l'étudiant : " + student.getId());
+            System.err.println("Ã©chec de l'envoi de l'email Ã  l'Ã©tudiant : " + student.getId());
         }
     }
 
     
     private void viewCourseStudents(HttpServletRequest request) {
         // get parameters
-        int courseId = ServletUtil.getIntFromString(request.getParameter("course_id"));
+        int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
         // verify parameters
         if (courseId == -1 || CourseService.getCourseById(courseId) == null) {
             errorMessage = "Cours introuvable.";
@@ -281,24 +283,26 @@ public class StudentController extends HttpServlet {
     }
     
     private void generateTranscript(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        int studentId = (int) request.getSession().getAttribute("studentId");
+        int studentId = (int) request.getSession().getAttribute("student-id");
 
         // Fetch grades
-        List<Grade> grades = GradeService.getGradesByStudentId(studentId);
+        Map<Course, List<Result>> grades = ResultService.getResultsByStudentIdGroupedByCourse(studentId);
 
         // Generate transcript (PDF or other format)
-        byte[] transcript = TranscriptGenerator.generate(grades);
+        //byte[] transcript = TranscriptService.generate(grades);
+        // TODO
 
         // Send the transcript as a download
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=transcript.pdf");
-        response.getOutputStream().write(transcript);
+        //response.getOutputStream().write(transcript);
+        // TODO
     }
     
     private void notifyStudentGradePublication(Student student, String courseName, double grade) {
-        String subject = "Nouvelle note publiée";
+        String subject = "Nouvelle note publiÃ©e";
         String message = String.format(
-            "Bonjour %s,\n\nUne nouvelle note a été publiée pour le cours : %s.\n\nNote obtenue : %.2f\n\nCordialement,\nL'équipe de gestion",
+            "Bonjour %s,\n\nUne nouvelle note a Ã©tÃ© publiÃ©e pour le cours : %s.\n\nNote obtenue : %.2f\n\nCordialement,\nL'Ã©quipe de gestion",
             student.getFirstName(),
             courseName,
             grade
@@ -308,7 +312,7 @@ public class StudentController extends HttpServlet {
             EmailUtil.sendEmail(student.getUser().getEmail(), subject, message);
         } catch (MessagingException e) {
             e.printStackTrace();
-            System.err.println("Échec de l'envoi de l'email pour la publication de la note.");
+            System.err.println("Ã©chec de l'envoi de l'email pour la publication de la note.");
         }
     }
 

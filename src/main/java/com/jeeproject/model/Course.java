@@ -31,4 +31,19 @@ public class Course {
 
     public Professor getProfessor() { return professor; }
     public void setProfessor(Professor professor) { this.professor = professor; }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true; // Same reference
+        if (o == null || getClass() != o.getClass()) return false; // Null or different class
+
+        Course course = (Course) o; // Cast to Student
+        return id == course.id; // Compare unique identifier
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id); // Hash based on the unique identifier
+    }
 }

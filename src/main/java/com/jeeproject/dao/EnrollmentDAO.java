@@ -1,6 +1,7 @@
 package com.jeeproject.dao;
 
 import com.jeeproject.model.Enrollment;
+import com.jeeproject.model.Student;
 import com.jeeproject.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -27,6 +28,19 @@ public class EnrollmentDAO {
     public Enrollment findById(int id) {
         Session session = sessionFactory.openSession();
         Enrollment enrollment = session.get(Enrollment.class, id);
+        session.close();
+        return enrollment;
+    }
+
+    public Enrollment findByStudentIdAndCourseId(int studentId, int courseId) {
+        Session session = sessionFactory.openSession();
+        String hql = "SELECT e " +
+                "FROM Enrollment e " +
+                "WHERE e.course.id = :courseId AND e.student.id = :studentId";
+        Enrollment enrollment = session.createQuery(hql, Enrollment.class)
+                .setParameter("courseId", courseId)
+                .setParameter("studentId", studentId)
+                .uniqueResult();
         session.close();
         return enrollment;
     }

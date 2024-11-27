@@ -1,8 +1,14 @@
 package com.jeeproject.controller;
 
+import com.jeeproject.model.Professor;
+import com.jeeproject.model.Student;
 import com.jeeproject.model.User;
+import com.jeeproject.service.ProfessorService;
+import com.jeeproject.service.StudentService;
 import com.jeeproject.service.UserService;
+import com.jeeproject.util.EmailUtil;
 import com.jeeproject.util.ServletUtil;
+import com.jeeproject.util.TypeUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -37,7 +43,7 @@ public class UserController extends HttpServlet {
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "update":
-                resultPage = "/WEB-INF/views/userDetails.jsp";
+                resultPage = "/WEB-INF/adminPages/user/userDetails.jsp";
                 errorPage = "error.jsp";
                 updateUser(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
@@ -65,17 +71,24 @@ public class UserController extends HttpServlet {
         errorMessage = null;
         switch (action) {
             case "details":
-                resultPage = "/WEB-INF/views/userDetails.jsp";
+                resultPage = "/WEB-INF/adminPages/user/userDetails.jsp";
                 errorPage = "error.jsp";
                 viewUser(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "list":
-                resultPage = "/WEB-INF/views/users.jsp";
+                resultPage = "/WEB-INF/adminPages/user/users.jsp";
                 errorPage = "error.jsp";
                 viewUsers(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
+            case "createForm":
+                resultPage = "WEB-INF/adminPages/user/register.jsp";
+                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
+            case "updateForm":
+                resultPage = "WEB-INF/adminPages/user/updateUser.jsp";
+                request.setAttribute("user", UserService.getUserById(TypeUtil.getIntFromString(request.getParameter("user-id"))));
+                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
             default:
                 ServletUtil.invalidAction(request, response);
         }
@@ -92,7 +105,7 @@ public class UserController extends HttpServlet {
             errorMessage = "Role invalide";
             return;
         }
-        if (!ServletUtil.validEmail(email)) {
+        if (!EmailUtil.validEmail(email)) {
             errorMessage = "Email invalide";
             return;
         }
@@ -114,7 +127,7 @@ public class UserController extends HttpServlet {
         // get parameters
         String email = request.getParameter("email");
         String password = request.getParameter("password");
-        int userId = ServletUtil.getIntFromString(request.getParameter("id"));
+        int userId = TypeUtil.getIntFromString(request.getParameter("user-id"));
         // verify parameters
         if (userId == -1 || UserService.getUserById(userId) == null) {
             errorMessage = "Utilisateur introuvable.";
@@ -122,7 +135,7 @@ public class UserController extends HttpServlet {
         }
         // update user
         User user = UserService.getUserById(userId);
-        if (ServletUtil.validEmail(email)) { user.setEmail(email); }
+        if (EmailUtil.validEmail(email)) { user.setEmail(email); }
         if (ServletUtil.validString(password)) { user.setPassword(password); }
         UserService.updateUser(user);
         request.setAttribute("user", user);
@@ -131,7 +144,7 @@ public class UserController extends HttpServlet {
 
     private  void deleteUser(HttpServletRequest request) {
         // get parameters
-        int userId = ServletUtil.getIntFromString(request.getParameter("id"));
+        int userId = TypeUtil.getIntFromString(request.getParameter("user-id"));
         // verify parameters
         if (userId == -1 || UserService.getUserById(userId) == null) {
             errorMessage = "Utilisateur introuvable.";
@@ -139,12 +152,18 @@ public class UserController extends HttpServlet {
         }
         // delete user
         UserService.deleteUser(userId);
+        // delete student
+        Student student = StudentService.getStudentByUserId(userId);
+        if (student != null ) { StudentService.deleteStudent(student.getId()); }
+        // delete professor
+        Professor professor = ProfessorService.getProfessorByUserId(userId);
+        if (professor != null ) { ProfessorService.deleteProfessor(professor.getId()); }
     }
 
 
     private void viewUser(HttpServletRequest request) {
         // get parameters
-        int userId = ServletUtil.getIntFromString(request.getParameter("id"));
+        int userId = TypeUtil.getIntFromString(request.getParameter("user-id"));
         // verify parameters
         if (userId == -1 || UserService.getUserById(userId) == null) {
             errorMessage = "Utilisateur introuvable.";
@@ -153,6 +172,26 @@ public class UserController extends HttpServlet {
         // get user
         User user = UserService.getUserById(userId);
         request.setAttribute("user", user);
+        // get associated student or professor
+        switch (user.getRole()) {
+            case "professor":
+                Professor professor = ProfessorService.getProfessorByUserId(userId);
+                if (professor!=null) {
+                    request.setAttribute("firstName", professor.getFirstName());
+                    request.setAttribute("lastName", professor.getLastName());
+                }
+                break;
+            case "student":
+                Student student = StudentService.getStudentByUserId(userId);
+                if (student!=null) {
+                    request.setAttribute("firstName", student.getFirstName());
+                    request.setAttribute("lastName", student.getLastName());
+                }
+                break;
+            default:
+                request.setAttribute("firstName", "N/A");
+                request.setAttribute("lastName", "N/A");
+        }
     }
 
     private void viewUsers(HttpServletRequest request) {

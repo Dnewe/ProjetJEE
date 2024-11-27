@@ -5,6 +5,7 @@ import com.jeeproject.service.CourseService;
 import com.jeeproject.service.EnrollmentService;
 import com.jeeproject.service.StudentService;
 import com.jeeproject.util.ServletUtil;
+import com.jeeproject.util.TypeUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -33,7 +34,7 @@ public class EnrollmentController extends HttpServlet {
         errorMessage = null;
         switch (action) {
             case "create":
-                resultPage = "enrollment?action=list";
+                resultPage = ServletUtil.getResultPage(request, "enrollment?action=list");
                 createEnrollment(request);
                 break;
             case "update":
@@ -41,7 +42,7 @@ public class EnrollmentController extends HttpServlet {
                 updateEnrollment(request);
                 break;
             case "delete":
-                resultPage = "enrollment?action=list";
+                resultPage = ServletUtil.getResultPage(request, resultPage = "enrollment?action=list");
                 deleteEnrollment(request);
                 break;
             default:
@@ -65,11 +66,11 @@ public class EnrollmentController extends HttpServlet {
         switch (action) {
             case "list":
                 resultPage = "WEB-INF/views/enrollments.jsp";
-                listEnrollments(request);
+                /*listEnrollments(request);*/
                 break;
             case "view":
                 resultPage = "WEB-INF/views/studentEnrollments.jsp";
-                viewStudentEnrollments(request);
+                /*viewStudentEnrollments(request);*/
                 break;
             default:
                 ServletUtil.invalidAction(request, response);
@@ -80,22 +81,25 @@ public class EnrollmentController extends HttpServlet {
     }
 
     private void createEnrollment(HttpServletRequest request) {
-        Date enrollmentDate = ServletUtil.getDateFromString(request.getParameter("enrollment_date"));
-        int courseId = ServletUtil.getIntFromString(request.getParameter("course_id"));
-        int studentId = ServletUtil.getIntFromString(request.getParameter("student_id"));
+        Date enrollmentDate = request.getParameter("enrollment-date")!= null ?
+                TypeUtil.getDateFromString(request.getParameter("enrollment-date")) : new Date();
+        int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
+        int studentId = TypeUtil.getIntFromString(request.getParameter("student-id"));
 
         if (enrollmentDate == null) {
             errorMessage = "Date invalide. Utilisez le format yyyy-MM-dd.";
             return;
         }
-
         if (courseId == -1 || CourseService.getCourseById(courseId) == null) {
             errorMessage = "Cours introuvable.";
             return;
         }
-
         if (studentId == -1 || StudentService.getStudentById(studentId) == null) {
-            errorMessage = "�tudiant introuvable.";
+            errorMessage = "étudiant introuvable.";
+            return;
+        }
+        if (EnrollmentService.getEnrollmentByStudentIdAndCourseId(studentId, courseId) != null) {
+            errorMessage = "Inscription déjà existante.";
             return;
         }
 
@@ -108,8 +112,8 @@ public class EnrollmentController extends HttpServlet {
     }
 
     private void updateEnrollment(HttpServletRequest request) {
-        int enrollmentId = ServletUtil.getIntFromString(request.getParameter("id"));
-        Date enrollmentDate = ServletUtil.getDateFromString(request.getParameter("enrollment_date"));
+        int enrollmentId = TypeUtil.getIntFromString(request.getParameter("enrollment-id"));
+        Date enrollmentDate = TypeUtil.getDateFromString(request.getParameter("enrollment-date"));
 
         Enrollment enrollment = EnrollmentService.getEnrollmentById(enrollmentId);
         if (enrollment == null) {
@@ -125,7 +129,28 @@ public class EnrollmentController extends HttpServlet {
     }
 
     private void deleteEnrollment(HttpServletRequest request) {
-        int enrollmentId = ServletUtil.getIntFromString(request.getParameter("id"));
+        int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
+        int studentId = TypeUtil.getIntFromString(request.getParameter("student-id"));
+        // check parameters
+        if (courseId == -1 || CourseService.getCourseById(courseId) == null) {
+            errorMessage = "Cours introuvable.";
+            return;
+        }
+        if (studentId == -1 || StudentService.getStudentById(studentId) == null) {
+            errorMessage = "Etudiant introuvable.";
+            return;
+        }
+        Enrollment enrollment = EnrollmentService.getEnrollmentByStudentIdAndCourseId(studentId, courseId);
+        if (enrollment == null) {
+            errorMessage = "Inscription introuvable.";
+            return;
+        }
+        // delete enrollment
+        EnrollmentService.deleteEnrollment(enrollment.getId());
+    }
+
+    private void deleteEnrollment_(HttpServletRequest request) {
+        int enrollmentId = TypeUtil.getIntFromString(request.getParameter("enrollment-id"));
 
         if (enrollmentId == -1 || EnrollmentService.getEnrollmentById(enrollmentId) == null) {
             errorMessage = "Inscription introuvable.";
@@ -135,20 +160,20 @@ public class EnrollmentController extends HttpServlet {
         EnrollmentService.deleteEnrollment(enrollmentId);
     }
 
-    private void listEnrollments(HttpServletRequest request) {
+    /*private void listEnrollments(HttpServletRequest request) {
         request.setAttribute("enrollments", EnrollmentService.getAllEnrollments());
-    }
+    }/*
 
-    private void viewStudentEnrollments(HttpServletRequest request) {
-        int studentId = ServletUtil.getIntFromString(request.getParameter("studentId"));
+    /*private void viewStudentEnrollments(HttpServletRequest request) {
+        int studentId = TypeUtil.getIntFromString(request.getParameter("student-id"));
 
         if (studentId == -1 || StudentService.getStudentById(studentId) == null) {
-            errorMessage = "�tudiant introuvable.";
+            errorMessage = "étudiant introuvable.";
             return;
         }
 
         request.setAttribute("student", StudentService.getStudentById(studentId));
-        request.setAttribute("enrolledCourses", EnrollmentService.getCoursesByStudent(studentId));
-        request.setAttribute("availableCourses", CourseService.getCoursesNotEnrolledByStudent(studentId));
-    }
+        request.setAttribute("enrolled-courses", EnrollmentService.getCoursesByStudent(studentId));
+        request.setAttribute("available-courses", CourseService.getCoursesNotEnrolledByStudent(studentId));
+    }*/
 }

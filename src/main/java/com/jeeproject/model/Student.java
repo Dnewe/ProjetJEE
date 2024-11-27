@@ -44,4 +44,19 @@ public class Student {
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true; // Same reference
+        if (o == null || getClass() != o.getClass()) return false; // Null or different class
+
+        Student student = (Student) o; // Cast to Student
+        return id == student.id; // Compare unique identifier
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id); // Hash based on the unique identifier
+    }
+
 }

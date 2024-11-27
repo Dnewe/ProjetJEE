@@ -26,6 +26,16 @@ public class CourseDAO {
 
     public Course findById(int id) {
         Session session = sessionFactory.openSession();
+        String hql = "SELECT c FROM Course c WHERE c.id = :id";
+        Course course = session.createQuery(hql, Course.class)
+                .setParameter("id", id)
+                .uniqueResult();
+        session.close();
+        return course;
+    }
+
+    public Course findById_(int id) {
+        Session session = sessionFactory.openSession();
         Course course = session.get(Course.class, id);
         session.close();
         return course;

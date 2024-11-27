@@ -2,13 +2,13 @@ package com.jeeproject.controller;
 
 import com.jeeproject.model.Course;
 import com.jeeproject.model.Professor;
-import com.jeeproject.model.Student;
 import com.jeeproject.model.User;
 import com.jeeproject.service.CourseService;
 import com.jeeproject.service.ProfessorService;
 import com.jeeproject.service.StudentService;
 import com.jeeproject.service.UserService;
 import com.jeeproject.util.ServletUtil;
+import com.jeeproject.util.TypeUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,7 @@ public class ProfessorController extends HttpServlet {
         String action = request.getParameter("action");
 
         if (action == null) {
+            System.out.println("NO ACTION (post)");
             ServletUtil.invalidAction(request, response);
             return;
         }
@@ -44,10 +46,10 @@ public class ProfessorController extends HttpServlet {
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "update":
-                resultPage = "WEB-INF/views/updateProfessor.jsp";
+                resultPage = ServletUtil.getResultPage(request, "professor?action=list");
                 errorPage = "error.jsp";
                 updateProfessor(request);
-                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
+                ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "delete":
                 resultPage = "professor?action=list";
@@ -62,6 +64,7 @@ public class ProfessorController extends HttpServlet {
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             default:
+                System.out.println("ACTION NOT FOUND PROFESSOR (post) : " + action);
                 ServletUtil.invalidAction(request, response);
         }
     }
@@ -71,52 +74,53 @@ public class ProfessorController extends HttpServlet {
         String action = request.getParameter("action");
 
         if (action == null) {
+            System.out.println("NO ACTION");
             ServletUtil.invalidAction(request, response);
             return;
         }
 
         errorMessage = null;
         switch (action) {
-            case "registerForm":
-                resultPage = "WEB-INF/views/registerProfessor.jsp";
-                errorPage = "error.jsp";
-                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
-                break;
             case "details":
-                resultPage = "WEB-INF/views/professorDetails.jsp";
+                resultPage = "WEB-INF/adminPages/professor/professorDetails.jsp";
                 errorPage = "error.jsp";
                 viewProfessor(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "list":
-                resultPage = "WEB-INF/views/professors.jsp";
+                resultPage = "WEB-INF/adminPages/professor/professors.jsp";
                 errorPage = "error.jsp";
                 viewProfessors(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
+            case "updateForm":
+                resultPage = "WEB-INF/adminPages/professor/updateProfessor.jsp";
+                request.setAttribute("professor", ProfessorService.getProfessorById(TypeUtil.getIntFromString(request.getParameter("professor-id"))));
+                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
             case "submitGrades":
-                resultPage = "WEB-INF/views/gradeSubmission.jsp";
+                resultPage = "WEB-INF/adminPages/professor/gradeSubmission.jsp";
                 errorPage = "error.jsp";
                 submitGrades(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             default:
+                System.out.println("ACTION NOT FOUND PROFESSOR (get)");
                 ServletUtil.invalidAction(request, response);
         }
     }
 
     private void createProfessor(HttpServletRequest request) {
-        String lastName = request.getParameter("last_name");
-        String firstName = request.getParameter("first_name");
+        String lastName = request.getParameter("last-name");
+        String firstName = request.getParameter("first-name");
         String contact = request.getParameter("contact");
-        int userId = ServletUtil.getIntFromString(request.getParameter("user_id"));
+        int userId = TypeUtil.getIntFromString(request.getParameter("user-id"));
 
         if (!ServletUtil.validString(lastName)) {
             errorMessage = "Nom invalide.";
             return;
         }
         if (!ServletUtil.validString(firstName)) {
-            errorMessage = "Prénom invalide.";
+            errorMessage = "PrÃ©nom invalide.";
             return;
         }
         if (!ServletUtil.validString(contact)) {
@@ -128,13 +132,13 @@ public class ProfessorController extends HttpServlet {
             return;
         }
         if (ProfessorService.getProfessorByUserId(userId) != null || StudentService.getStudentByUserId(userId) != null) {
-            errorMessage = "Utilisateur déjà associé à un étudiant ou professeur.";
+            errorMessage = "Utilisateur dÃ©jÃ  associÃ© Ã  un Ã©tudiant ou professeur.";
             return;
         }
 
         User user = UserService.getUserById(userId);
         if (!"professor".equals(user.getRole())) {
-            errorMessage = "Le rôle de l'utilisateur ne correspond pas.";
+            errorMessage = "Le rï¿½le de l'utilisateur ne correspond pas.";
             return;
         }
 
@@ -148,10 +152,12 @@ public class ProfessorController extends HttpServlet {
     }
 
     private void updateProfessor(HttpServletRequest request) {
-        String lastName = request.getParameter("last_name");
-        String firstName = request.getParameter("first_name");
+        String lastName = request.getParameter("last-name");
+        String firstName = request.getParameter("first-name");
         String contact = request.getParameter("contact");
-        int professorId = ServletUtil.getIntFromString(request.getParameter("id"));
+        int professorId = TypeUtil.getIntFromString(request.getParameter("professor-id"));
+
+        System.out.println(professorId);
 
         if (professorId == -1 || ProfessorService.getProfessorById(professorId) == null) {
             errorMessage = "Professeur introuvable.";
@@ -167,7 +173,7 @@ public class ProfessorController extends HttpServlet {
     }
 
     private void deleteProfessor(HttpServletRequest request) {
-        int professorId = ServletUtil.getIntFromString(request.getParameter("id"));
+        int professorId = TypeUtil.getIntFromString(request.getParameter("professor-id"));
 
         if (professorId == -1 || ProfessorService.getProfessorById(professorId) == null) {
             errorMessage = "Professeur introuvable.";
@@ -178,18 +184,22 @@ public class ProfessorController extends HttpServlet {
     }
 
     private void viewProfessor(HttpServletRequest request) {
-        int professorId = ServletUtil.getIntFromString(request.getParameter("id"));
+        int professorId = TypeUtil.getIntFromString(request.getParameter("professor-id"));
 
         if (professorId == -1 || ProfessorService.getProfessorById(professorId) == null) {
             errorMessage = "Professeur introuvable.";
             return;
         }
-
+        // add professor attribute
         Professor professor = ProfessorService.getProfessorById(professorId);
         request.setAttribute("professor", professor);
-
-        List<Course> courses = CourseService.getCoursesByProfessorId(professorId);
-        request.setAttribute("courses", courses);
+        // add assigned courses attribute
+        List<Course> assignedCourses = CourseService.getCoursesByProfessorId(professorId);
+        request.setAttribute("assignedCourses", assignedCourses);
+        // add available courses attribute
+        List<Course> availableCourses = CourseService.getAllCourses();
+        availableCourses.removeAll(assignedCourses);
+        request.setAttribute("availableCourses", availableCourses);
     }
 
     private void viewProfessors(HttpServletRequest request) {
@@ -198,24 +208,24 @@ public class ProfessorController extends HttpServlet {
     }
 
     private void submitGrades(HttpServletRequest request) {
-        int professorId = ServletUtil.getIntFromString((String) request.getSession().getAttribute("professorId"));
-        int courseId = ServletUtil.getIntFromString(request.getParameter("course_id"));
+        int professorId = TypeUtil.getIntFromString((String) request.getSession().getAttribute("professor-id"));
+        int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
 
         if (professorId == -1) {
-            errorMessage = "Professeur non identifié.";
+            errorMessage = "Professeur non identifiÃ©.";
             return;
         }
 
-        request.setAttribute("courses", CourseService.getCoursesByProfessor(professorId));
+        request.setAttribute("courses", CourseService.getCoursesByProfessorId(professorId));
 
         if (courseId != -1) {
-            request.setAttribute("selectedCourseId", courseId);
-            request.setAttribute("students", StudentService.getStudentsByCourse(courseId));
+            request.setAttribute("selected-course-id", courseId);
+            request.setAttribute("students", StudentService.getStudentsByCourseId(courseId));
         }
     }
 
     private void saveGrades(HttpServletRequest request) {
-        int courseId = ServletUtil.getIntFromString(request.getParameter("course_id"));
+        int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
 
         if (courseId == -1 || CourseService.getCourseById(courseId) == null) {
             errorMessage = "Cours introuvable.";
@@ -229,7 +239,7 @@ public class ProfessorController extends HttpServlet {
                 int studentId = Integer.parseInt(paramName.substring(7, paramName.length() - 1));
                 double grade = Double.parseDouble(gradeParams.get(paramName)[0]);
 
-                ProfessorService.updateStudentGrade(courseId, studentId, grade);
+                //ProfessorService.updateStudentGrade(courseId, studentId, grade);
             }
         }
     }

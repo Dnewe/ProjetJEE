@@ -1,9 +1,13 @@
 package com.jeeproject.controller;
 
 import com.jeeproject.model.Course;
+import com.jeeproject.model.Professor;
+import com.jeeproject.model.Student;
 import com.jeeproject.service.CourseService;
 import com.jeeproject.service.ProfessorService;
+import com.jeeproject.service.StudentService;
 import com.jeeproject.util.ServletUtil;
+import com.jeeproject.util.TypeUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -25,34 +29,41 @@ public class CourseController extends HttpServlet {
         String action = request.getParameter("action");
 
         if (action==null) {
+            System.out.println("NO ACTION COURSE (post)");
             ServletUtil.invalidAction(request, response);
             return;
         }
 
         errorMessage = null;
         switch (action) {
-        	case "assignProfessor":
-                resultPage = "/WEB-INF/views/courseDetails.jsp";
-                errorPage = "error.jsp";
-                assignProfessorToCourse(request);
-                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
-                break;
             case "create":
-                resultPage = "";
+                resultPage = ServletUtil.getResultPage(request, "course?action=list");
                 errorPage = "error.jsp";
                 createCourse(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "update":
-                resultPage = "/WEB-INF/views/courseDetails.jsp";
+                resultPage = ServletUtil.getResultPage(request, "course?action=list");
                 errorPage = "error.jsp";
                 updateCourse(request);
-                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
+                ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "delete":
-                resultPage = "";
+                resultPage = ServletUtil.getResultPage(request, "course?action=list");
                 errorPage = "error.jsp";
                 deleteCourse(request);
+                ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
+                break;
+            case "assignProfessor":
+                resultPage = ServletUtil.getResultPage(request, "course?action=list");
+                errorPage = "error.jsp";
+                assignProfessorToCourse(request);
+                ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
+                break;
+            case "removeProfessor":
+                resultPage = ServletUtil.getResultPage(request, "course?action=list");
+                errorPage = "error.jsp";
+                removeProfessorFromCourse(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             default:
@@ -72,109 +83,73 @@ public class CourseController extends HttpServlet {
         errorMessage = null;
         switch (action) {
             case "details":
-                resultPage = "/WEB-INF/views/courseDetails.jsp";
+                resultPage = "/WEB-INF/adminPages/course/courseDetails.jsp";
                 errorPage = "error.jsp";
                 viewCourse(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "list":
-                resultPage = "/WEB-INF/views/courses.jsp";
+                resultPage = "/WEB-INF/adminPages/course/courses.jsp";
                 errorPage = "error.jsp";
                 viewCourses(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
+            case "createForm":
+                resultPage = "WEB-INF/adminPages/course/createCourse.jsp";
+                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
+            case "updateForm":
+                resultPage = "WEB-INF/adminPages/course/updateCourse.jsp";
+                request.setAttribute("course", CourseService.getCourseById(TypeUtil.getIntFromString(request.getParameter("course-id"))));
+                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
             default:
                 ServletUtil.invalidAction(request, response);
         }
     }
 
     private void assignProfessorToCourse(HttpServletRequest request) {
-        int courseId = ServletUtil.getIntFromString(request.getParameter("courseId"));
-        int professorId = ServletUtil.getIntFromString(request.getParameter("professor_id"));
+        int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
+        int professorId = TypeUtil.getIntFromString(request.getParameter("professor-id"));
         
-        // Vérification si le cours existe
+        // VÃ©rification si le cours existe
         Course course = CourseService.getCourseById(courseId);
         if (course == null) {
-            errorMessage = "Cours introuvable.";
+            System.out.println(courseId);
+            errorMessage = "Cours introuvable. Test";
             return;
         }
-
-        // Vérification si le professeur existe
+        // VÃ©rification si le professeur existe
         Professor professor = ProfessorService.getProfessorById(professorId);
         if (professor == null) {
             errorMessage = "Professeur introuvable.";
-            return;
+            //return;
         }
 
         // Assigner le professeur au cours
         course.setProfessor(professor);
         CourseService.updateCourse(course);
         
-        // Recharger les informations du cours avec le professeur assigné
-        request.setAttribute("course", course);
-        request.setAttribute("professors", ProfessorService.getAllProfessors()); // Charger la liste des professeurs
+        // Recharger les informations du cours avec le professeur assignÃ©
+        //request.setAttribute("course", course);
+        //request.setAttribute("professors", ProfessorService.getAllProfessors()); // Charger la liste des professeurs
     }
-    
-    private void removeStudentFromCourse(HttpServletRequest request) {
-        int courseId = ServletUtil.getIntFromString(request.getParameter("courseId"));
-        int studentId = ServletUtil.getIntFromString(request.getParameter("studentId"));
 
-        // Vérifiez si le cours et l'étudiant existent
+    private void removeProfessorFromCourse(HttpServletRequest request) {
+        int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
+        // VÃ©rification si le cours existe
         Course course = CourseService.getCourseById(courseId);
-        Student student = StudentService.getStudentById(studentId);
-
         if (course == null) {
-            errorMessage = "Cours introuvable.";
+            errorMessage = "Cours introuvable. Test 2";
             return;
         }
-
-        if (student == null) {
-            errorMessage = "Étudiant introuvable.";
-            return;
-        }
-
-        // Supprimez l'étudiant du cours
-        CourseService.removeStudentFromCourse(courseId, studentId);
-
-        // Rechargez les données pour la page
-        request.setAttribute("course", course);
-        request.setAttribute("enrolledStudents", CourseService.getStudentsByCourse(courseId));
-        request.setAttribute("availableStudents", StudentService.getStudentsNotEnrolledInCourse(courseId));
+        course.setProfessor(null);
+        CourseService.updateCourse(course);
     }
-
-    private void assignStudentToCourse(HttpServletRequest request) {
-        int courseId = ServletUtil.getIntFromString(request.getParameter("courseId"));
-        int studentId = ServletUtil.getIntFromString(request.getParameter("studentId"));
-
-        // Vérifiez si le cours et l'étudiant existent
-        Course course = CourseService.getCourseById(courseId);
-        Student student = StudentService.getStudentById(studentId);
-
-        if (course == null) {
-            errorMessage = "Cours introuvable.";
-            return;
-        }
-
-        if (student == null) {
-            errorMessage = "Étudiant introuvable.";
-            return;
-        }
-
-        // Ajoutez l'étudiant au cours
-        CourseService.addStudentToCourse(courseId, studentId);
-
-        // Rechargez les données pour la page
-        request.setAttribute("course", course);
-        request.setAttribute("enrolledStudents", CourseService.getStudentsByCourse(courseId));
-        request.setAttribute("availableStudents", StudentService.getStudentsNotEnrolledInCourse(courseId));
-    }
-
 
     private void createCourse(HttpServletRequest request) {
         // get parameters
         String name = request.getParameter("name");
         String description = request.getParameter("description");
-        int professorId = ServletUtil.getIntFromString(request.getParameter("professor_id"));
+        int professorId = TypeUtil.getIntFromString(request.getParameter("professor-id"));
         // verify parameters
         if (!ServletUtil.validString(name)) {
             errorMessage = "Le nom du cours n'est pas valide";
@@ -202,10 +177,10 @@ public class CourseController extends HttpServlet {
         // get parameters
         String name = request.getParameter("name");
         String description = request.getParameter("description");
-        int courseId = ServletUtil.getIntFromString(request.getParameter("id"));
+        int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
         // verify parameters
         if (courseId == -1 || CourseService.getCourseById(courseId) == null) {
-            errorMessage = "Cours introuvable.";
+            errorMessage = "Cours introuvable. Test 3";
             return;
         }
         // update course
@@ -219,10 +194,10 @@ public class CourseController extends HttpServlet {
 
     private  void deleteCourse(HttpServletRequest request) {
         // get parameters
-        int courseId = ServletUtil.getIntFromString(request.getParameter("id"));
+        int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
         // verify parameters
         if (courseId == -1 || CourseService.getCourseById(courseId) == null) {
-            errorMessage = "Cours introuvable.";
+            errorMessage = "Cours introuvable. Test 4";
             return;
         }
         // delete course
@@ -231,15 +206,25 @@ public class CourseController extends HttpServlet {
 
     private void viewCourse(HttpServletRequest request) {
         // get parameters
-        int courseId = ServletUtil.getIntFromString(request.getParameter("id"));
+        int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
         // verify parameters
         if (courseId == -1 || CourseService.getCourseById(courseId) == null) {
-            errorMessage = "Cours introuvable.";
+            errorMessage = "Cours introuvable. Test 5";
             return;
         }
-        // get courses
+        // get course
         Course course = CourseService.getCourseById(courseId);
         request.setAttribute("course", course);
+        // get enrolled students
+        List<Student> enrolledStudents = StudentService.getStudentsByCourseId(courseId);
+        request.setAttribute("enrolledStudents", enrolledStudents);
+        // get available students
+        List<Student> availableStudents = StudentService.getAllStudents();
+        availableStudents.removeAll(enrolledStudents);
+        request.setAttribute("availableStudents", availableStudents);
+        // get available professors
+        List<Professor> availableProfessors = ProfessorService.getAllProfessors();
+        request.setAttribute("availableProfessors", availableProfessors);
     }
 
     private void viewCourses(HttpServletRequest request) {

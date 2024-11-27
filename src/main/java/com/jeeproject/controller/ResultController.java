@@ -7,6 +7,7 @@ import com.jeeproject.service.CourseService;
 import com.jeeproject.service.EnrollmentService;
 import com.jeeproject.service.ResultService;
 import com.jeeproject.util.ServletUtil;
+import com.jeeproject.util.TypeUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -102,11 +103,11 @@ public class ResultController extends HttpServlet {
 
     private void createResult(HttpServletRequest request) {
         // get parameters
-        double grade = ServletUtil.getDoubleFromString(request.getParameter("grade"));
-        double maxScore = ServletUtil.getDoubleFromString(request.getParameter("max_score"));
-        double weight = ServletUtil.getDoubleFromString(request.getParameter("weight"));
-        int enrollmentId = ServletUtil.getIntFromString(request.getParameter("enrollment_id"));
-        Date entryDate = ServletUtil.getDateFromString(request.getParameter("entry_date"));
+        double grade = TypeUtil.getDoubleFromString(request.getParameter("grade"));
+        double maxScore = TypeUtil.getDoubleFromString(request.getParameter("max-score"));
+        double weight = TypeUtil.getDoubleFromString(request.getParameter("weight"));
+        int enrollmentId = TypeUtil.getIntFromString(request.getParameter("enrollment-id"));
+        Date entryDate = TypeUtil.getDateFromString(request.getParameter("entry-date"));
         // verify parameters
         if (!validGrade(grade, maxScore, weight)) {
             errorMessage = "Note invalide.";
@@ -117,7 +118,7 @@ public class ResultController extends HttpServlet {
             return;
         }
         if (enrollmentId == -1 || EnrollmentService.getEnrollmentById(enrollmentId) == null) {
-            errorMessage = "L'étudiant n'est pas inscrit au cours.";
+            errorMessage = "L'Ã©tudiant n'est pas inscrit au cours.";
             return;
         }
         // create result
@@ -133,10 +134,10 @@ public class ResultController extends HttpServlet {
 
     private void updateResult(HttpServletRequest request) {
         // get parameters
-        double grade = ServletUtil.getDoubleFromString(request.getParameter("grade"));
-        double maxScore = ServletUtil.getDoubleFromString(request.getParameter("max_score"));
-        double weight = ServletUtil.getDoubleFromString(request.getParameter("weight"));
-        int resultId = ServletUtil.getIntFromString(request.getParameter("id"));
+        double grade = TypeUtil.getDoubleFromString(request.getParameter("grade"));
+        double maxScore = TypeUtil.getDoubleFromString(request.getParameter("max-score"));
+        double weight = TypeUtil.getDoubleFromString(request.getParameter("weight"));
+        int resultId = TypeUtil.getIntFromString(request.getParameter("result-id"));
         // verify parameters
         if (resultId == -1 || ResultService.getResultById(resultId) == null) {
             errorMessage = "Resultat introuvable.";
@@ -154,7 +155,7 @@ public class ResultController extends HttpServlet {
 
     private  void deleteResult(HttpServletRequest request) {
         // get parameters
-        int resultId = ServletUtil.getIntFromString(request.getParameter("id"));
+        int resultId = TypeUtil.getIntFromString(request.getParameter("result-id"));
         // verify parameters
         if (resultId == -1 || ResultService.getResultById(resultId) == null) {
             errorMessage = "Resultat introuvable.";
@@ -166,7 +167,7 @@ public class ResultController extends HttpServlet {
 
     private void viewResult(HttpServletRequest request) {
         // get parameters
-        int resultId = ServletUtil.getIntFromString(request.getParameter("id"));
+        int resultId = TypeUtil.getIntFromString(request.getParameter("result-id"));
         // verify parameters
         if (resultId == -1 || CourseService.getCourseById(resultId) == null) {
             errorMessage = "Resultat introuvable.";
@@ -179,7 +180,7 @@ public class ResultController extends HttpServlet {
 
     private void viewCourseResults(HttpServletRequest request) {
         // get parameters
-        int courseId = ServletUtil.getIntFromString(request.getParameter("course_id"));
+        int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
         // verify parameters
         if (courseId == -1 || CourseService.getCourseById(courseId) == null) {
             errorMessage = "Cours introuvable.";
@@ -192,7 +193,7 @@ public class ResultController extends HttpServlet {
 
     private void viewStudentResults(HttpServletRequest request) {
         // get parameters
-        int studentId = ServletUtil.getIntFromString(request.getParameter("student_id"));
+        int studentId = TypeUtil.getIntFromString(request.getParameter("student-id"));
         // verify parameters
         if (studentId == -1 || CourseService.getCourseById(studentId) == null) {
             errorMessage = "Etudiant introuvable.";
@@ -203,17 +204,17 @@ public class ResultController extends HttpServlet {
         request.setAttribute("resultsByCourse", resultsByCourse);
     }
     
-    public void publishGrade(int studentId, int courseId, double grade) {
+    /*public void publishGrade(int studentId, int courseId, double grade) {
         // Logique pour ajouter/modifier une note
         GradeService.addGrade(studentId, courseId, grade);
 
-        // Récupérer les informations de l'étudiant et du cours
+        // Rï¿½cupï¿½rer les informations de l'ï¿½tudiant et du cours
         Student student = StudentService.getStudentById(studentId);
         Course course = CourseService.getCourseById(courseId);
 
-        // Notifier l'étudiant
+        // Notifier l'ï¿½tudiant
         notifyStudentGradePublication(student, course.getName(), grade);
-    }
+    }*/
 
 
     private void viewTranscript(HttpServletRequest request) {

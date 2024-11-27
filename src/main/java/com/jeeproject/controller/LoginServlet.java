@@ -21,7 +21,7 @@ public class LoginServlet extends HttpServlet {
         User user = UserService.authenticate(email, password);
         if (user != null) {
             HttpSession session = request.getSession();
-            session.setAttribute("loggedUser", user);
+            session.setAttribute("logged-user", user);
             switch (user.getRole()) {
                 case "admin":
                     response.sendRedirect("adminDashboard.jsp");

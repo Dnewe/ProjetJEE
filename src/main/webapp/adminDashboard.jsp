@@ -7,12 +7,10 @@
     <h2>Que voulez-vous faire ?</h2>
 
     <div class="mt-3">
-        <a href="register.jsp" class="btn btn-primary">Inscrire un nouvel utilisateur</a>
-        <a href="manageUsers.jsp" class="btn btn-secondary">Gérer les utilisateurs</a>
-        <a href="manageCourses.jsp" class="btn btn-info">Gérer les cours</a>
-        <a href="enrollStudent.jsp" class="btn btn-success">Inscrire un étudiant à un cours</a>
-        <a href="studentCourses.jsp" class="btn btn-warning">Consulter les cours d'un étudiant</a>
-        <a href="allStudentsCourses.jsp" class="btn btn-dark">Afficher tous les cours par étudiant</a>
+        <a href="user?action=list" class="btn btn-primary">Gérer les utilisateurs</a>
+        <a href="professor?action=list" class="btn btn-primary">Gérer les professeurs</a>
+        <a href="student?action=list" class="btn btn-primary">Gérer les étudiants</a>
+        <a href="course?action=list" class="btn btn-primary">Gérer les cours</a>
     </div>
 </div>
 

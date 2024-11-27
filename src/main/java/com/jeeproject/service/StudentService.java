@@ -33,4 +33,8 @@ public class StudentService {
     public static void deleteStudent(int id) {
         studentDAO.delete(id);
     }
+
+    public static List<Student> getFilteredStudents(String search, int courseId) {
+        return studentDAO.findFilteredStudents(search, courseId);
+    }
 }
