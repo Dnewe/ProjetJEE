@@ -13,7 +13,7 @@ DROP TABLE IF EXISTS `result`;
 CREATE TABLE `user` (
 	`id` int NOT NULL AUTO_INCREMENT,
     `email` varchar(100) NOT NULL,
-	`password` varchar(255) NOT NULL,
+	`password` varchar(100) NOT NULL,
     `role` enum('student','professor','admin') NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `email` (`email`)
@@ -22,8 +22,8 @@ CREATE TABLE `user` (
 CREATE TABLE `student` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
-  `last_name` varchar(50) NOT NULL,
-  `first_name` varchar(50) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `first_name` varchar(100) NOT NULL,
   `date_of_birth` date DEFAULT NULL,
   `contact` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -34,8 +34,8 @@ CREATE TABLE `student` (
 CREATE TABLE `professor` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
-  `last_name` varchar(50) NOT NULL,
-  `first_name` varchar(50) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `first_name` varchar(100) NOT NULL,
   `contact` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
@@ -67,6 +67,7 @@ CREATE TABLE `enrollment` (
 CREATE TABLE `result` (
   `id` int NOT NULL AUTO_INCREMENT,
   `enrollment_id` int NOT NULL,
+  `assessment_name` varchar(100) DEFAULT NULL,
   `grade` decimal(5,2) DEFAULT NULL,
   `max_score` decimal(5,2) DEFAULT NULL,
   `weight` decimal(5,2) DEFAULT NULL,

@@ -11,6 +11,9 @@ public class Result {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "assessment_name", nullable = false)
+    private String assessmentName;
+
     @Column(name = "grade", nullable = false)
     private double grade;
 
@@ -27,6 +30,10 @@ public class Result {
     @JoinColumn(name = "enrollment_id", nullable = false)
     private Enrollment enrollment;
 
+    // Getters and Setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
     public double getGrade() { return grade; }
     public void setGrade(double grade) { this.grade = grade; }
 
@@ -41,4 +48,7 @@ public class Result {
 
     public Enrollment getEnrollment() { return enrollment; }
     public void setEnrollment(Enrollment enrollment) {}
+
+    public String getAssessmentName() { return assessmentName; }
+    public void setAssessmentName(String assessmentName) {this.assessmentName = assessmentName;}
 }
