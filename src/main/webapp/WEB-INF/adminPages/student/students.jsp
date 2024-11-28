@@ -64,6 +64,8 @@
         <p class="text-center">Aucun étudiant trouvé.</p>
     </c:if>
 
+    <a href="user?action=createForm&role=student" class="btn btn-success">Ajouter un Etudiant</a>
+
     <a href="${pageContext.request.contextPath}/adminDashboard.jsp" class="btn btn-secondary">Retour au tableau de bord</a>
 </div>
 

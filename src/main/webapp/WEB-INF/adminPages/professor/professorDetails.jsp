@@ -44,7 +44,7 @@
                                 <input type="hidden" name="result-page" value="professor?action=details&professor-id=${professor.id}">
                                 <input type="hidden" name="professor-id" value="${professor.id}">
                                 <input type="hidden" name="course-id" value="${course.id}">
-                                <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                                <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
                             </form>
                         </td>
                     </tr>

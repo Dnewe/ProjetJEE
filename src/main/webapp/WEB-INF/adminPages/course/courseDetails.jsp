@@ -32,9 +32,7 @@
                     <c:if test="${course.professor == null}">
                         Aucun professeur assigné.
                     </c:if>
-                </td>
-                <td>
-                    <form action="${pageContext.request.contextPath}/course" method="post" style="display: inline;">
+                    <form action="${pageContext.request.contextPath}/course" method="post" style="display: ${course.professor != null ? 'inline-block' : 'none'};">
                         <input type="hidden" name="action" value="removeProfessor">
                         <input type="hidden" name="result-page" value="course?action=details&course-id=${course.id}">
                         <input type="hidden" name="course-id" value="${course.id}">

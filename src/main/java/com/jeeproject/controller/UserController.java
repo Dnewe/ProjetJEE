@@ -84,6 +84,7 @@ public class UserController extends HttpServlet {
                 break;
             case "createForm":
                 resultPage = "WEB-INF/adminPages/user/register.jsp";
+                request.setAttribute("selectedRole", request.getParameter("role"));
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
             case "updateForm":
                 resultPage = "WEB-INF/adminPages/user/updateUser.jsp";

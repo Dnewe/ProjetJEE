@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,13 +27,13 @@
         <div class="mb-3">
             <label for="role" class="form-label">Rôle</label>
             <select class="form-select" id="role" name="role" onchange="toggleFields(this.value)" required>
-                <option value="admin">Administrateur</option>
-                <option value="student">Étudiant</option>
-                <option value="professor">Enseignant</option>
+                <option value="admin" >Administrateur</option>
+                <option value="student" ${selectedRole == 'student' ? 'selected' : ''}>Étudiant</option>
+                <option value="professor" ${selectedRole == 'professor' ? 'selected' : ''}>Enseignant</option>
             </select>
         </div>
 
-        <div id="studentFields" style="display: none;">
+        <div id="studentFields" style="display: ${selectedRole == 'student' ? 'block' : 'none'};">
             <div class="mb-3">
                 <label for="student-last-name" class="form-label">Nom</label>
                 <input type="text" class="form-control" id="student-last-name" name="student-last-name">
@@ -51,7 +52,7 @@
             </div>
         </div>
 
-        <div id="professorFields" style="display: none;">
+        <div id="professorFields" style="display: ${selectedRole == 'professor' ? 'block' : 'none'};">
             <div class="mb-3">
                 <label for="professor-last-name" class="form-label">Nom</label>
                 <input type="text" class="form-control" id="professor-last-name" name="professor-last-name">
@@ -67,7 +68,7 @@
         </div>
 
         <a href="${pageContext.request.contextPath}/user?action=list" class="btn btn-danger">Annuler</a>
-        <button type="submit" class="btn btn-primary">S'inscrire</button>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
     </form>
 </div>
 </body>

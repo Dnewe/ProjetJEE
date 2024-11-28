@@ -65,11 +65,11 @@ public class EnrollmentController extends HttpServlet {
         errorMessage = null;
         switch (action) {
             case "list":
-                resultPage = "WEB-INF/views/enrollments.jsp";
+                //resultPage = "WEB-INF/views/enrollments.jsp";
                 /*listEnrollments(request);*/
                 break;
             case "view":
-                resultPage = "WEB-INF/views/studentEnrollments.jsp";
+                //resultPage = "WEB-INF/views/studentEnrollments.jsp";
                 /*viewStudentEnrollments(request);*/
                 break;
             default:
