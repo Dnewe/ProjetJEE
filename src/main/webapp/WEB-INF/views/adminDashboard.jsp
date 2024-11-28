@@ -3,16 +3,14 @@
     <jsp:param name="pageTitle" value="Tableau de Bord Administrateur" />
 </jsp:include>
 
-<div class="container mt-4">
+<div class="container admin-dashboard">
     <h2>Que voulez-vous faire ?</h2>
 
     <div class="mt-3">
-        <a href="professor?action=registerForm" class="btn btn-success">Ajouter un Enseignant</a>
-        <a href="student?action=registerForm" class="btn btn-success">Ajouter un Étudiant</a>
-        <a href="students.jsp" class="btn btn-secondary">Gérer les étudiants</a>
-        <a href="professors.jsp" class="btn btn-secondary">Gérer les professeurs</a>
-        <a href="courses.jsp" class="btn btn-info">Gérer les cours</a>
-        <a href="enrollStudent.jsp" class="btn btn-success">Inscrire un étudiant à un cours</a>
+        <a href="user?action=list" class="btn btn-primary">Gérer les utilisateurs</a>
+        <a href="professor?action=list" class="btn btn-primary">Gérer les professeurs</a>
+        <a href="student?action=list" class="btn btn-primary">Gérer les étudiants</a>
+        <a href="course?action=list" class="btn btn-primary">Gérer les cours</a>
     </div>
 </div>
 
