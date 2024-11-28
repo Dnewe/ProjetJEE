@@ -6,7 +6,7 @@
     <title>Connexion</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="login-page">
     <div class="login-container">
         <h2>Connexion</h2>
         <form action="login" method="post">

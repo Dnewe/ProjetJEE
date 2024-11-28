@@ -19,26 +19,29 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Header personnalisé */
-.header-custom {
+/* Header toujours en haut (sauf login.jsp) */
+header {
     background-color: #87CEEB;
     border-bottom: 2px solid #0056b3;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     padding: 10px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
-.header-custom .navbar-brand {
+header .navbar-brand {
     display: flex;
     align-items: center;
 }
 
-.header-custom .navbar-brand .logo {
+header .navbar-brand .logo {
     margin-right: 10px;
     border-radius: 50%;
     border: 2px solid #0056b3;
 }
 
-.header-custom .brand-text {
+header .brand-text {
     font-size: 1.5rem;
     font-weight: bold;
     color: #0056b3;
@@ -58,7 +61,6 @@ body {
     background-color: #003d7a;
     color: #fff;
 }
-
 
 /* Titres */
 h1, h2, h3 {
@@ -145,6 +147,7 @@ footer {
     bottom: 0;
     width: 100%;
     margin-top: auto;
+    border-top: 1px solid #ddd;
 }
 
 /* Adaptations spécifiques au tableau de bord admin */
@@ -172,6 +175,11 @@ footer {
 .admin-dashboard .btn {
     font-size: 1.1rem;
     padding: 12px 20px;
+}
+
+/* Suppression des styles header/footer pour login.jsp */
+body.login-page header, body.login-page footer {
+    display: none;
 }
 
 /* Responsive Design */
