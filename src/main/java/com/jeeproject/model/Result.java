@@ -47,7 +47,7 @@ public class Result {
     public void setEntryDate(Date entryDate) { this.entryDate = entryDate; }
 
     public Enrollment getEnrollment() { return enrollment; }
-    public void setEnrollment(Enrollment enrollment) {}
+    public void setEnrollment(Enrollment enrollment) {this.enrollment = enrollment; }
 
     public String getAssessmentName() { return assessmentName; }
     public void setAssessmentName(String assessmentName) {this.assessmentName = assessmentName;}
