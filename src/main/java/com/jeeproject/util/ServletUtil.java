@@ -8,6 +8,8 @@ import java.io.IOException;
 
 public class ServletUtil {
 
+    public static String defaultErrorPage = "WEB-INF/commonPages/error.jsp";
+
     public static String getResultPage(HttpServletRequest req, String defaultForwardPage) {
         return (req.getParameter("result-page") != null) ? req.getParameter("result-page") : defaultForwardPage;
     }
@@ -16,7 +18,7 @@ public class ServletUtil {
         if (errorMessage==null) {
             req.getRequestDispatcher(forwardPage).forward(req, resp);
         } else {
-            req.setAttribute("error", errorMessage);
+            req.setAttribute("errorMessage", errorMessage);
             req.getRequestDispatcher(errorPage).forward(req, resp);
         }
     }
@@ -36,7 +38,7 @@ public class ServletUtil {
     }
 
     public static boolean validString(String str) {
-        return (str!=null && !str.isEmpty());
+        return (str!=null && !str.isEmpty() && str.length()<100);
     }
 
 
