@@ -106,15 +106,16 @@ public class ResultController extends HttpServlet {
         double grade = TypeUtil.getDoubleFromString(request.getParameter("grade"));
         double maxScore = TypeUtil.getDoubleFromString(request.getParameter("max-score"));
         double weight = TypeUtil.getDoubleFromString(request.getParameter("weight"));
+        String assessmentName = request.getParameter("assessment-name");
         int enrollmentId = TypeUtil.getIntFromString(request.getParameter("enrollment-id"));
-        Date entryDate = TypeUtil.getDateFromString(request.getParameter("entry-date"));
+        Date entryDate = new Date();
         // verify parameters
-        if (!validGrade(grade, maxScore, weight)) {
-            errorMessage = "Note invalide.";
+        if (!ServletUtil.validString(assessmentName)) {
+            errorMessage = "Nom du devoir invalide.";
             return;
         }
-        if (entryDate == null) {
-            errorMessage = "Date invalide. Utilisez le format yyyy-MM-dd.";
+        if (!validGrade(grade, maxScore, weight)) {
+            errorMessage = "Note invalide.";
             return;
         }
         if (enrollmentId == -1 || EnrollmentService.getEnrollmentById(enrollmentId) == null) {
@@ -127,6 +128,8 @@ public class ResultController extends HttpServlet {
         result.setGrade(grade);
         result.setMaxScore(maxScore);
         result.setWeight(weight);
+        result.setAssessmentName(assessmentName);
+        result.setEntryDate(entryDate);
         // add result
         ResultService.addResult(result);
     }
@@ -138,6 +141,8 @@ public class ResultController extends HttpServlet {
         double maxScore = TypeUtil.getDoubleFromString(request.getParameter("max-score"));
         double weight = TypeUtil.getDoubleFromString(request.getParameter("weight"));
         int resultId = TypeUtil.getIntFromString(request.getParameter("result-id"));
+        String assessmentName = request.getParameter("assessment-name");
+        Date entryDate = TypeUtil.getDateFromString(request.getParameter("entry-date"));
         // verify parameters
         if (resultId == -1 || ResultService.getResultById(resultId) == null) {
             errorMessage = "Resultat introuvable.";
@@ -148,6 +153,8 @@ public class ResultController extends HttpServlet {
         if (maxScore>0 && maxScore<1000) { result.setMaxScore(maxScore); }
         if (grade>0 && grade<1000 && grade<result.getMaxScore()) { result.setGrade(grade); }
         if (weight>0 && weight<1000) { result.setWeight(weight); }
+        if (ServletUtil.validString(assessmentName)) { result.setAssessmentName(assessmentName);}
+        if (entryDate!=null) { result.setEntryDate(entryDate);}
         ResultService.updateResult(result);
         request.setAttribute("result", result);
     }
