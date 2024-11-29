@@ -52,6 +52,10 @@ public class ResultService {
         return resultsByStudent;
     }
 
+    public static List<Result> getResultsByStudentIdAndCourseId(int studentId, int courseId) {
+        return resultDAO.findByStudentIdAndCourseId(studentId, courseId);
+    }
+
     public static void updateResult(Result result) {
         resultDAO.update(result);
     }

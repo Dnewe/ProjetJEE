@@ -1,6 +1,11 @@
 
 package com.jeeproject.controller;
 
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.properties.TextAlignment;
 import com.jeeproject.model.Course;
 import com.jeeproject.model.Result;
 import com.jeeproject.model.Student;
@@ -20,6 +25,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @WebServlet(name = "StudentController", urlPatterns = "/student")
 public class StudentController extends HttpServlet {
@@ -110,12 +116,10 @@ public class StudentController extends HttpServlet {
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "downloadPdf":
-                String studentId = request.getParameter("studentId");
-                if (studentId != null) {
-                    generateStudentGradesPdf(studentId, response);
-                } else {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Paramètre 'studentId' manquant.");
-                }
+                resultPage = "WEB-INF/adminPages/student/viewGrades.jsp";
+                errorPage = "error.jsp";
+                generateStudentGradesPdf(request, response);
+                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             default:
                 ServletUtil.invalidAction(request, response);
@@ -246,19 +250,20 @@ public class StudentController extends HttpServlet {
     }
 
     private void viewStudents(HttpServletRequest request) {
-        // Récupérer les paramètres de filtrage
+        // get parameters
         String search = request.getParameter("search");
         String courseIdParam = request.getParameter("course-id");
         int courseId = (courseIdParam != null && !courseIdParam.isEmpty()) ? Integer.parseInt(courseIdParam) : -1;
 
-        // Récupérer la liste des étudiants filtrés
-        // TODO
-        List<Student> students = StudentService.getAllStudents();//StudentService.getFilteredStudents(search, courseId);
+        // get filtered students
+        List<Student> students = StudentService.getFilteredStudents(search, courseId);
         request.setAttribute("students", students);
 
-        // Récupérer la liste des cours pour le menu déroulant
+        // get courses
         List<Course> courses = CourseService.getAllCourses();
         request.setAttribute("courses", courses);
+        // get filtered-course
+        if (courseId !=-1) { request.setAttribute("filteredCourse", CourseService.getCourseById(courseId)); }
     }
     
     private void notifyStudentEnrollmentChange(Student student, String changeType) {
@@ -291,44 +296,56 @@ public class StudentController extends HttpServlet {
         request.setAttribute("students", students);
     }
     
-    public void generateStudentGradesPdf(String studentId, HttpServletResponse response) {
+    public void generateStudentGradesPdf(HttpServletRequest request, HttpServletResponse response) {
+        // get parameters
+        int studentId = TypeUtil.getIntFromString(request.getParameter("student-id"));
+        // verify parameters
+        if (studentId == -1 || StudentService.getStudentById(studentId) == null) {
+            errorMessage = "Etudiant introuvable.";
+            return;
+        }
+        // get grades
+        Student student = StudentService.getStudentById(studentId);
+        Map<Course, List<Result>> resultsByCourse = ResultService.getResultsByStudentIdGroupedByCourse(studentId);
+        Map<Course, Double> averageByCourse = resultsByCourse.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> calculateAverage(entry.getValue())
+                ));
+        // Configuration de la réponse HTTP pour le téléchargement
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=\"releve_notes_" + studentId + ".pdf\"");
+
+        // Générer le PDF
         try {
-            // Récupérer les informations nécessaires
-            Student student = studentService.getStudentById(studentId);
-            Map<Course, List<Result>> grades = ResultService.getResultsByStudentIdGroupedByCourse(studentId);
+            PdfWriter writer = new PdfWriter(response.getOutputStream());
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            pdfDoc.addNewPage();
+            Document document = new Document(pdfDoc);
 
-            // Configuration de la réponse HTTP pour le téléchargement
-            response.setContentType("application/pdf");
-            response.setHeader("Content-Disposition", "attachment; filename=\"releve_notes_" + studentId + ".pdf\"");
+            // Ajouter le contenu au PDF
+            document.add(new Paragraph("Relevé de Notes")
+                    .setFontSize(18)
+                    .setBold()
+                    .setTextAlignment(TextAlignment.CENTER));
 
-            // Générer le PDF
-            try (PdfWriter writer = new PdfWriter(response.getOutputStream())) {
-                PdfDocument pdfDoc = new PdfDocument(writer);
-                Document document = new Document(pdfDoc);
+            document.add(new Paragraph("Nom : " + student.getLastName()));
+            document.add(new Paragraph("Prénom : " + student.getFirstName()));
+            document.add(new Paragraph("\nNotes :").setBold());
 
-                // Ajouter le contenu au PDF
-                document.add(new Paragraph("Relevé de Notes")
-                        .setFontSize(18)
-                        .setBold()
-                        .setTextAlignment(com.itextpdf.layout.property.TextAlignment.CENTER));
-
-                document.add(new Paragraph("Nom : " + student.getLastName()));
-                document.add(new Paragraph("Prénom : " + student.getFirstName()));
-                document.add(new Paragraph("\nNotes :").setBold());
-
-                for (Result result : grades) {
-                    document.add(new Paragraph(result.getCourseName() + " : " + result.getScore()));
+            for (Map.Entry<Course, List<Result>> entry : resultsByCourse.entrySet()) {
+                document.add(new Paragraph((entry.getKey()).getName()).setUnderline());
+                for (Result result : entry.getValue()) {
+                    document.add(new Paragraph( "    "
+                            + result.getAssessmentName() + " (coeff " + result.getWeight() + ") : "
+                            + result.getGrade() + " / " + result.getMaxScore()));
                 }
-
-                document.close();
+                document.add(new Paragraph("    " + "moyenne :" + averageByCourse.get(entry.getKey()) + " / 20"));
+                document.add(new Paragraph("\n"));
             }
+            document.close();
         } catch (Exception e) {
-            e.printStackTrace();
-            try {
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Erreur lors de la génération du PDF.");
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            errorMessage = "Création du pdf impossible.";
         }
     }
     
@@ -349,4 +366,13 @@ public class StudentController extends HttpServlet {
         }
     }
 
+    private static double calculateAverage(List<Result> results) {
+        double totalWeightedGrades = 0.0;
+        double totalWeights = 0.0;
+        for (Result result : results) {
+            totalWeightedGrades += result.getGrade() / result.getMaxScore() * result.getWeight();
+            totalWeights += result.getWeight();
+        }
+        return Math.round((totalWeights == 0.0 ? 0.0 : totalWeightedGrades / totalWeights)*20*100)/100.;
+    }
 }

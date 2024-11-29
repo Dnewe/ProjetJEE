@@ -1,16 +1,15 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <jsp:include page="WEB-INF/util/header.jsp">
-    <jsp:param name="pageTitle" value="Tableau de Bord Administrateur" />
+    <jsp:param name="pageTitle" value="Tableau de Bord Etudiant" />
 </jsp:include>
 
-<div class="container mt-4">
-    <h2>Que voulez-vous faire ?</h2>
+<div class="container">
+    <h2>Bienvenue sur votre espace enseignant, ${sessionScope.loggedProfessor.firstName} ${sessionScope.loggedProfessor.lastName}!</h2>
+    <h4>Que voulez-vous faire ?</h4>
 
     <div class="mt-3">
-        <a href="user?action=list" class="btn btn-primary">Gérer les utilisateurs</a>
-        <a href="professor?action=list" class="btn btn-primary">Gérer les professeurs</a>
-        <a href="student?action=list" class="btn btn-primary">Gérer les étudiants</a>
-        <a href="course?action=list" class="btn btn-primary">Gérer les cours</a>
+        <a href="course?action=professorList&professor-id=${sessionScope.loggedProfessor.id}" class="btn btn-primary">Voir les cours</a>
+        <a href="result?action=professorList&professor-id=${sessionScope.loggedProfessor.id}" class="btn btn-primary">Voir les notes</a>
     </div>
 </div>
 

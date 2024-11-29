@@ -9,8 +9,8 @@
     <h1>Saisie des notes</h1>
     
     <form action="professor?action=submitGrades" method="post">
-        <!-- Liste déroulante des cours -->
-        <label for="course">Sélectionner un cours :</label>
+        <!-- Liste dÃ©roulante des cours -->
+        <label for="course">SÃ©lectionner un cours :</label>
         <select name="course_id" id="course" onchange="this.form.submit()">
             <option value="">-- Choisir un cours --</option>
             <c:forEach var="course" items="${courses}">
@@ -21,14 +21,14 @@
         </select>
     </form>
     
-    <!-- Liste des étudiants et champs pour les notes -->
+    <!-- Liste des ï¿½tudiants et champs pour les notes -->
     <c:if test="${not empty students}">
         <form action="professor?action=saveGrades" method="post">
             <input type="hidden" name="course_id" value="${selectedCourseId}">
             <table border="1">
                 <thead>
                     <tr>
-                        <th>Étudiant</th>
+                        <th>ï¿½tudiant</th>
                         <th>Note</th>
                     </tr>
                 </thead>

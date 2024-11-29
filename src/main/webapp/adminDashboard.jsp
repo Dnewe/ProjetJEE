@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<jsp:include page="WEB-INF/util/header.jsp">
+<jsp:include page="/WEB-INF/util/header.jsp">
     <jsp:param name="pageTitle" value="Tableau de Bord Administrateur" />
 </jsp:include>
 
@@ -14,4 +14,4 @@
     </div>
 </div>
 
-<jsp:include page="WEB-INF/util/footer.jsp" />
+<jsp:include page="/WEB-INF/util/footer.jsp" />

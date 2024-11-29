@@ -18,6 +18,8 @@
 <body>
 
 <jsp:include page="/WEB-INF/util/header.jsp">
+    <jsp:param name="pageTitle" value="Resultats" />
+</jsp:include>
 
 <div class="container">
     <h2 class="mb-4">Liste des Résultats</h2>

@@ -64,7 +64,6 @@
 
     <a href="user?action=createForm" class="btn btn-success">Ajouter un Utilisateur</a>
 
-    <a href="${pageContext.request.contextPath}/adminDashboard.jsp" class="btn btn-secondary">Retour au tableau de bord</a>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -36,6 +36,12 @@
       <version>3.0.0</version>
     </dependency>
     <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>itext7-core</artifactId>
+      <version>7.2.4</version>
+      <type>pom</type>
+    </dependency>
+    <dependency>
       <groupId>jakarta.el</groupId>
       <artifactId>jakarta.el-api</artifactId>
       <version>5.0.1</version>

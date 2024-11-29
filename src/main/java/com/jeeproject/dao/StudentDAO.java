@@ -1,6 +1,7 @@
 package com.jeeproject.dao;
 
 import com.jeeproject.model.Student;
+import jakarta.persistence.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -77,7 +78,21 @@ public class StudentDAO {
     public List<Student> findFilteredStudents(String search, int courseId) {
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
-        List<Student> students = null;
+        boolean hasSearch = (search != null && !search.trim().isEmpty());
+        boolean hasCourseFilter = (courseId != -1);
+
+        String hql = "SELECT DISTINCT s FROM Student s ";
+        if (hasCourseFilter) { hql += "JOIN Enrollment e ON s.id = e.student.id WHERE e.course.id = :courseId "; }
+        if (hasSearch) {
+            hql += (hasCourseFilter ? "AND " : "WHERE ") +
+                    "(LOWER(s.lastName) LIKE :search OR LOWER(s.firstName) LIKE :search OR LOWER(s.contact) LIKE :search) ";
+        }
+        hql += "ORDER BY s.lastName, s.firstName";
+
+        Query query = session.createQuery(hql, Student.class);
+        if (hasSearch) query.setParameter("search", "%" + search.toLowerCase() + "%");
+        if (hasCourseFilter) query.setParameter("courseId", courseId);
+        List<Student> students = query.getResultList();
         transaction.commit();
         session.close();
         return students;

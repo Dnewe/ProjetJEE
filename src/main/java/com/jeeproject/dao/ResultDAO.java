@@ -88,4 +88,22 @@ public class ResultDAO {
         transaction.commit();
         session.close();
     }
+
+    public List<Result> findByStudentIdAndCourseId(int studentId, int courseId) {
+        Session session = sessionFactory.openSession();
+        String hql = "SELECT r " +
+                "FROM Result r " +
+                "JOIN r.enrollment e " +
+                "JOIN e.course c " +
+                "JOIN e.student s " +
+                "WHERE s.id = :courseId " +
+                "AND e.id = :studentId " +
+                "ORDER BY r.entryDate ASC";
+        List<Result> results = session.createQuery(hql, Result.class)
+                .setParameter("courseId", courseId)
+                .setParameter("studentId", studentId)
+                .getResultList();
+        session.close();
+        return results;
+    }
 }

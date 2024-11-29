@@ -1,5 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,9 +11,23 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<jsp:include page="header.jsp" />
+<jsp:include page="/WEB-INF/util/header.jsp" />
 <div class="container mt-5">
     <h2 class="mb-4">Gestion des Étudiants</h2>
+
+    <form class="d-flex" action="${pageContext.request.contextPath}/student" method="get">
+        <input type="hidden" name="action" value="list">
+        <input class="form-control form-control-sm mr-sm-2" type="search" name="search" placeholder="Search" aria-label="Search"></input>
+        <select class="form-select form-select-sm me-1" name="course-id">
+            <option value="" ${empty filteredCourse ? 'selected' : ''}>Aucun filtre de cours</option>
+            <c:forEach var="course" items="${courses}">
+                <option value="${course.id}" ${filteredCourse != null && filteredCourse.id == course.id ? 'selected' : ''}>
+                        ${course.name}
+                </option>
+            </c:forEach>
+        </select>
+        <button class="btn btn-primary" type="submit">Rechercher</button>
+    </form>
 
     <!-- Messages d'erreur ou de succès -->
     <c:if test="${not empty errorMessage}">
@@ -44,7 +60,7 @@
                 <td>${student.lastName}</td>
                 <td>${student.firstName}</td>
                 <td>${student.contact}</td>
-                <td>${student.dateOfBirth}</td>
+                <td><fmt:formatDate value="${student.dateOfBirth}" pattern="dd/MM/yyyy"/></td>
                 <td>
                     <!-- Boutons actions -->
                     <a href="${pageContext.request.contextPath}/student?action=details&student-id=${student.id}" class="btn btn-info btn-sm">Détails</a>
@@ -67,10 +83,9 @@
 
     <a href="user?action=createForm&role=student" class="btn btn-success">Ajouter un Etudiant</a>
 
-    <a href="${pageContext.request.contextPath}/adminDashboard.jsp" class="btn btn-secondary">Retour au tableau de bord</a>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-<jsp:include page="footer.jsp" />
+<jsp:include page="/WEB-INF/util/footer.jsp" />
 </html>

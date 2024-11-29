@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<jsp:include page="header.jsp" />
+<jsp:include page="/WEB-INF/util/header.jsp" />
 <div class="container mt-5">
     <h2 class="mb-4">Changer son mot de passe : </h2>
 
@@ -49,6 +49,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<jsp:include page="footer.jsp" />
+<jsp:include page="/WEB-INF/util/footer.jsp" />
 </body>
 </html>

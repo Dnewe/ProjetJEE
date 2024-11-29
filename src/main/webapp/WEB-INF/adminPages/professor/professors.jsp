@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<jsp:include page="header.jsp" />
+<jsp:include page="/WEB-INF/util/header.jsp" />
 <div class="container mt-5">
     <h2 class="mb-4">Gestion des Professeurs</h2>
 
@@ -50,8 +50,7 @@
 
     <a href="user?action=createForm&role=professor" class="btn btn-success">Ajouter un Professeur</a>
 
-    <a href="${pageContext.request.contextPath}/adminDashboard.jsp" class="btn btn-secondary">Retour au tableau de bord</a>
 </div>
 </body>
-<jsp:include page="footer.jsp" />
+<jsp:include page="/WEB-INF/util/footer.jsp" />
 </html>

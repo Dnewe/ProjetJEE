@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<jsp:include page="header.jsp" />
+<jsp:include page="/WEB-INF/util/header.jsp" />
 <div class="container mt-5">
     <h2>Modifier Professeur</h2>
     <form action="${pageContext.request.contextPath}/professor?action=update" method="post">
@@ -41,5 +41,5 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-<jsp:include page="footer.jsp" />
+<jsp:include page="/WEB-INF/util/footer.jsp" />
 </html>
