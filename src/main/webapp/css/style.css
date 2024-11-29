@@ -47,7 +47,7 @@ header .brand-text {
     color: #0056b3;
 }
 
-/* Bouton de déconnexion */
+/* Bouton de dï¿½connexion */
 .logout-btn {
     background-color: #0056b3;
     color: #fff;
@@ -150,7 +150,7 @@ footer {
     border-top: 1px solid #ddd;
 }
 
-/* Adaptations spécifiques au tableau de bord admin */
+/* Adaptations spï¿½cifiques au tableau de bord admin */
 .admin-dashboard {
     display: flex;
     flex-direction: column;
