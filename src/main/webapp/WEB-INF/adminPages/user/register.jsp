@@ -13,6 +13,7 @@
     </script>
 </head>
 <body>
+<jsp:include page="header.jsp" />
 <div class="container mt-5">
     <h2>Inscription Utilisateur</h2>
     <form action="${pageContext.request.contextPath}/register" method="post">
@@ -72,4 +73,5 @@
     </form>
 </div>
 </body>
+<jsp:include page="footer.jsp" />
 </html>
