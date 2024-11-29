@@ -38,7 +38,8 @@ public class ResultDAO {
                     "JOIN r.enrollment e " +
                     "JOIN e.course c " +
                     "JOIN e.student s " +
-                    "WHERE s.id = :studentId";
+                    "WHERE s.id = :studentId " +
+                    "ORDER BY r.entryDate ASC";
         List<Object[]> resultsWithCourseName = session.createQuery(hql, Object[].class)
                 .setParameter("studentId", studentId)
                 .getResultList();
@@ -53,7 +54,8 @@ public class ResultDAO {
                 "JOIN r.enrollment e " +
                 "JOIN e.course c " +
                 "JOIN e.student s " +
-                "WHERE s.id = :courseId";
+                "WHERE s.id = :courseId " +
+                "ORDER BY r.entryDate ASC";
         List<Object[]> resultsWithCourseName = session.createQuery(hql, Object[].class)
                 .setParameter("courseId", courseId)
                 .getResultList();

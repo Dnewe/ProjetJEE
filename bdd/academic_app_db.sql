@@ -69,7 +69,7 @@ CREATE TABLE `result` (
   `enrollment_id` int NOT NULL,
   `assessment_name` varchar(100) DEFAULT NULL,
   `grade` decimal(5,2) DEFAULT NULL,
-  `max_score` decimal(5,2) DEFAULT NULL,
+  `max_score` int DEFAULT NULL,
   `weight` decimal(5,2) DEFAULT NULL,
   `entry_date` date NOT NULL,
   PRIMARY KEY (`id`),

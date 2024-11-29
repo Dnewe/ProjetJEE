@@ -18,7 +18,7 @@ public class Result {
     private double grade;
 
     @Column(name = "max_score", nullable = false)
-    private double maxScore;
+    private int maxScore;
 
     @Column(name = "weight", nullable = false)
     private double weight;
@@ -37,8 +37,8 @@ public class Result {
     public double getGrade() { return grade; }
     public void setGrade(double grade) { this.grade = grade; }
 
-    public double getMaxScore() { return maxScore; }
-    public void setMaxScore(double maxScore) { this.maxScore = maxScore; }
+    public int getMaxScore() { return maxScore; }
+    public void setMaxScore(int maxScore) { this.maxScore = maxScore; }
 
     public double getWeight() { return weight; }
     public void setWeight(double weight) { this.weight = weight; }
