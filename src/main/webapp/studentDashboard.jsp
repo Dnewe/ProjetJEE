@@ -1,50 +1,16 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tableau de bord étudiant</title>
-    <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-    <div class="dashboard-container">
-        <h1>Tableau de bord étudiant</h1>
-        <h2>Résultats</h2>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<jsp:include page="WEB-INF/util/header.jsp">
+    <jsp:param name="pageTitle" value="Tableau de Bord Etudiant" />
+</jsp:include>
 
-        <!-- Affichage des résultats -->
-        <table>
-            <thead>
-                <tr>
-                    <th>Cours</th>
-                    <th>Note</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% 
-                    List<Resultat> resultats = (List<Resultat>) request.getAttribute("resultats");
-                    if (resultats != null) {
-                        for (Resultat resultat : resultats) { 
-                %>
-                <tr>
-                    <td><%= resultat.getCours() %></td>
-                    <td><%= resultat.getNote() %></td>
-                </tr>
-                <% 
-                        } 
-                    }
-                %>
-            </tbody>
-        </table>
+<div class="container">
+    <h2>Bienvenue, ${sessionScope.loggedStudent.firstName} ${sessionScope.loggedStudent.lastName}!</h2>
+    <h4>Que voulez-vous faire ?</h4>
 
-        <!-- Affichage de la moyenne -->
-        <div class="average">
-            <h3>Moyenne Générale : <%= request.getAttribute("moyenne") %></h3>
-        </div>
-
-        <!-- Bouton de génération de relevé de notes -->
-        <form action="genererReleve" method="post">
-            <button type="submit">Générer relevé de notes</button>
-        </form>
+    <div class="mt-3">
+        <a href="course?action=studentList&student-id=${sessionScope.loggedStudent.id}" class="btn btn-primary">Voir les cours</a>
+        <a href="result?action=studentList&student-id=${sessionScope.loggedStudent.id}" class="btn btn-primary">Voir les notes</a>
     </div>
-</body>
-</html>
+</div>
+
+<jsp:include page="WEB-INF/util/footer.jsp" />

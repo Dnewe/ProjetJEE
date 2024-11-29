@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @WebServlet(name = "ResultController", urlPatterns = "/result")
 public class ResultController extends HttpServlet {
@@ -77,14 +78,14 @@ public class ResultController extends HttpServlet {
                 viewResult(request);
                 ServletUtil.invalidAction(request, response);
                 break;
-            case "course_list":
+            case "courseList":
                 resultPage = "/WEB-INF/views/results.jsp";
                 errorPage = "error.jsp";
                 viewCourseResults(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
-            case "student_list":
-                resultPage = "/WEB-INF/views/results.jsp";
+            case "studentList":
+                resultPage = "/WEB-INF/studentPages/results.jsp";
                 errorPage = "error.jsp";
                 viewStudentResults(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
@@ -104,7 +105,7 @@ public class ResultController extends HttpServlet {
     private void createResult(HttpServletRequest request) {
         // get parameters
         double grade = TypeUtil.getDoubleFromString(request.getParameter("grade"));
-        double maxScore = TypeUtil.getDoubleFromString(request.getParameter("max-score"));
+        int maxScore = TypeUtil.getIntFromString(request.getParameter("max-score"));
         double weight = TypeUtil.getDoubleFromString(request.getParameter("weight"));
         String assessmentName = request.getParameter("assessment-name");
         int enrollmentId = TypeUtil.getIntFromString(request.getParameter("enrollment-id"));
@@ -138,7 +139,7 @@ public class ResultController extends HttpServlet {
     private void updateResult(HttpServletRequest request) {
         // get parameters
         double grade = TypeUtil.getDoubleFromString(request.getParameter("grade"));
-        double maxScore = TypeUtil.getDoubleFromString(request.getParameter("max-score"));
+        int maxScore = TypeUtil.getIntFromString(request.getParameter("max-score"));
         double weight = TypeUtil.getDoubleFromString(request.getParameter("weight"));
         int resultId = TypeUtil.getIntFromString(request.getParameter("result-id"));
         String assessmentName = request.getParameter("assessment-name");
@@ -196,6 +197,13 @@ public class ResultController extends HttpServlet {
         // get results
         Map<Student, List<Result>> resultsByStudent = ResultService.getResultsByCourseIdGroupedByStudent(courseId);
         request.setAttribute("resultsByStudent", resultsByStudent);
+        // get average
+        Map<Student, Double> averageByStudent = resultsByStudent.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> calculateAverage(entry.getValue())
+                ));
+        request.setAttribute("averageByStudent", averageByStudent);
     }
 
     private void viewStudentResults(HttpServletRequest request) {
@@ -209,6 +217,13 @@ public class ResultController extends HttpServlet {
         // get results
         Map<Course, List<Result>> resultsByCourse = ResultService.getResultsByStudentIdGroupedByCourse(studentId);
         request.setAttribute("resultsByCourse", resultsByCourse);
+        // get average
+        Map<Course, Double> averageByCourse = resultsByCourse.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> calculateAverage(entry.getValue())
+                ));
+        request.setAttribute("averageByCourse", averageByCourse);
     }
     
     /*public void publishGrade(int studentId, int courseId, double grade) {
@@ -230,5 +245,15 @@ public class ResultController extends HttpServlet {
 
     private boolean validGrade(double grade, double maxScore, double weight) {
         return (grade>0 && maxScore>0 && weight>0) && (grade<1000 && maxScore<1000 && weight<1000) && grade <= maxScore;
+    }
+
+    private static double calculateAverage(List<Result> results) {
+        double totalWeightedGrades = 0.0;
+        double totalWeights = 0.0;
+        for (Result result : results) {
+            totalWeightedGrades += result.getGrade() / result.getMaxScore() * result.getWeight();
+            totalWeights += result.getWeight();
+        }
+        return Math.round((totalWeights == 0.0 ? 0.0 : totalWeightedGrades / totalWeights)*20*100)/100.;
     }
 }

@@ -19,19 +19,34 @@ VALUES (LAST_INSERT_ID(), 'Smith', 'Jane', '2000-05-15', 'jane.smith@example.com
 -- Créer un cours associé au professeur
 INSERT INTO `course` (`name`, `description`, `professor_id`) 
 VALUES ('Introduction to Databases', 'Learn the basics of SQL and database design.', (SELECT id FROM `professor` WHERE `last_name` = 'Doe'));
+INSERT INTO `course` (`name`, `description`, `professor_id`) 
+VALUES ('Introduction to Python', 'Learn the basics of Python.', (SELECT id FROM `professor` WHERE `last_name` = 'Doe'));
 
 -- Créer une inscription (enrollment) associée au cours et à l'étudiant
 INSERT INTO `enrollment` (`student_id`, `course_id`, `enrollment_date`) 
 VALUES ((SELECT id FROM `student` WHERE `last_name` = 'Smith'), 
         (SELECT id FROM `course` WHERE `name` = 'Introduction to Databases'), 
+        '2024-01-15'),
+        ((SELECT id FROM `student` WHERE `last_name` = 'Smith'), 
+        (SELECT id FROM `course` WHERE `name` = 'Introduction to Python'), 
         '2024-01-15');
 
 -- Créer 3 notes associées à l'inscription
-INSERT INTO `result` (`enrollment_id`, `grade`, `max_score`, `weight`, `entry_date`) 
+INSERT INTO `result` (`enrollment_id`, `assessment_name`, `grade`, `max_score`, `weight`, `entry_date`) 
 VALUES 
     ((SELECT id FROM `enrollment` WHERE `student_id` = (SELECT id FROM `student` WHERE `last_name` = 'Smith') 
-        AND `course_id` = (SELECT id FROM `course` WHERE `name` = 'Introduction to Databases')), 85.00, 100.00, 0.30, '2024-01-16'),
+        AND `course_id` = (SELECT id FROM `course` WHERE `name` = 'Introduction to Databases')), 'DS1', 85.00, 100, 0.30, '2024-01-16'),
     ((SELECT id FROM `enrollment` WHERE `student_id` = (SELECT id FROM `student` WHERE `last_name` = 'Smith') 
-        AND `course_id` = (SELECT id FROM `course` WHERE `name` = 'Introduction to Databases')), 90.00, 100.00, 0.50, '2024-01-17'),
+        AND `course_id` = (SELECT id FROM `course` WHERE `name` = 'Introduction to Databases')), 'DS2', 90.00, 100, 0.50, '2024-01-17'),
     ((SELECT id FROM `enrollment` WHERE `student_id` = (SELECT id FROM `student` WHERE `last_name` = 'Smith') 
-        AND `course_id` = (SELECT id FROM `course` WHERE `name` = 'Introduction to Databases')), 75.00, 100.00, 0.20, '2024-01-18');
+        AND `course_id` = (SELECT id FROM `course` WHERE `name` = 'Introduction to Databases')), 'DS3', 75.00, 100, 0.20, '2024-01-18');
+ 
+INSERT INTO `result` (`enrollment_id`, `assessment_name`, `grade`, `max_score`, `weight`, `entry_date`) 
+VALUES 
+    ((SELECT id FROM `enrollment` WHERE `student_id` = (SELECT id FROM `student` WHERE `last_name` = 'Smith') 
+        AND `course_id` = (SELECT id FROM `course` WHERE `name` = 'Introduction to Python')), 'DS1' , 65.00, 100, 0.30, '2024-01-16'),
+    ((SELECT id FROM `enrollment` WHERE `student_id` = (SELECT id FROM `student` WHERE `last_name` = 'Smith') 
+        AND `course_id` = (SELECT id FROM `course` WHERE `name` = 'Introduction to Python')), 'DS2', 1, 1, 0.50, '2024-01-17'),
+    ((SELECT id FROM `enrollment` WHERE `student_id` = (SELECT id FROM `student` WHERE `last_name` = 'Smith') 
+        AND `course_id` = (SELECT id FROM `course` WHERE `name` = 'Introduction to Python')), 'DS3', 55.00, 100, 1, '2024-01-18'); 
+        

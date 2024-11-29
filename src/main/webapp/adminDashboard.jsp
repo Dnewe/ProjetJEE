@@ -1,9 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<jsp:include page="header.jsp">
+<jsp:include page="WEB-INF/util/header.jsp">
     <jsp:param name="pageTitle" value="Tableau de Bord Administrateur" />
 </jsp:include>
 
-<div class="container mt-4">
+<div class="container admin-dashboard">
     <h2>Que voulez-vous faire ?</h2>
 
     <div class="mt-3">
@@ -14,4 +14,4 @@
     </div>
 </div>
 
-<jsp:include page="footer.jsp" />
+<jsp:include page="WEB-INF/util/footer.jsp" />

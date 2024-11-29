@@ -94,6 +94,18 @@ public class CourseController extends HttpServlet {
                 viewCourses(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
+            case "studentList":
+                resultPage = "/WEB-INF/studentPages/courses.jsp";
+                errorPage = "error.jsp";
+                viewStudentCourses(request);
+                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
+                break;
+            case "professorList":
+                resultPage = "/WEB-INF/professorPages/courses.jsp";
+                errorPage = "error.jsp";
+                viewProfessorCourses(request);
+                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
+                break;
             case "createForm":
                 resultPage = "WEB-INF/adminPages/course/createCourse.jsp";
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
@@ -114,7 +126,7 @@ public class CourseController extends HttpServlet {
         Course course = CourseService.getCourseById(courseId);
         if (course == null) {
             System.out.println(courseId);
-            errorMessage = "Cours introuvable. Test";
+            errorMessage = "Cours introuvable.";
             return;
         }
         // Vérification si le professeur existe
@@ -138,7 +150,7 @@ public class CourseController extends HttpServlet {
         // Vérification si le cours existe
         Course course = CourseService.getCourseById(courseId);
         if (course == null) {
-            errorMessage = "Cours introuvable. Test 2";
+            errorMessage = "Cours introuvable.";
             return;
         }
         course.setProfessor(null);
@@ -180,7 +192,7 @@ public class CourseController extends HttpServlet {
         int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
         // verify parameters
         if (courseId == -1 || CourseService.getCourseById(courseId) == null) {
-            errorMessage = "Cours introuvable. Test 3";
+            errorMessage = "Cours introuvable.";
             return;
         }
         // update course
@@ -197,7 +209,7 @@ public class CourseController extends HttpServlet {
         int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
         // verify parameters
         if (courseId == -1 || CourseService.getCourseById(courseId) == null) {
-            errorMessage = "Cours introuvable. Test 4";
+            errorMessage = "Cours introuvable.";
             return;
         }
         // delete course
@@ -209,7 +221,7 @@ public class CourseController extends HttpServlet {
         int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
         // verify parameters
         if (courseId == -1 || CourseService.getCourseById(courseId) == null) {
-            errorMessage = "Cours introuvable. Test 5";
+            errorMessage = "Cours introuvable.";
             return;
         }
         // get course
@@ -230,6 +242,32 @@ public class CourseController extends HttpServlet {
     private void viewCourses(HttpServletRequest request) {
         // get courses
         List<Course> courses = CourseService.getAllCourses();
+        request.setAttribute("courses", courses);
+    }
+
+    private void viewStudentCourses(HttpServletRequest request) {
+        // get parameters
+        int studentId = TypeUtil.getIntFromString(request.getParameter("student-id"));
+        // verify parameters
+        if (studentId == -1 || StudentService.getStudentById(studentId) == null) {
+            errorMessage = "Etudiant introuvable.";
+            return;
+        }
+        // get courses
+        List<Course> courses = CourseService.getCoursesByStudentId(studentId);
+        request.setAttribute("courses", courses);
+    }
+
+    private void viewProfessorCourses(HttpServletRequest request) {
+        // get parameters
+        int professorId = TypeUtil.getIntFromString(request.getParameter("professor-id"));
+        // verify parameters
+        if (professorId == -1 || ProfessorService.getProfessorById(professorId) == null) {
+            errorMessage = "Professeur introuvable.";
+            return;
+        }
+        // get courses
+        List<Course> courses = CourseService.getCoursesByProfessorId(professorId);
         request.setAttribute("courses", courses);
     }
 }
