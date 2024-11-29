@@ -1,5 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Tomcat 10.1.29" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 10.1.29" ALTERNATIVE_JRE_ENABLED="false">
+    <option name="OPEN_IN_BROWSER_URL" value="http://localhost:8080/ProjetJEE_war_exploded/login.jsp" />
     <deployment>
       <artifact name="ProjetJEE:war exploded">
         <settings>

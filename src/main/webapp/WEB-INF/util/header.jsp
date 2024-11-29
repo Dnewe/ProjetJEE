@@ -14,6 +14,7 @@
         <a class="navbar-brand" href="#">
             <img src="${pageContext.request.contextPath}/img/logo.png" alt="Logo" width="75" height="50" class="d-inline-block align-text-top logo">
             <span class="brand-text">Cy-Tech Gestion</span>
+            <a href="home" class="btn btn-primary">Accueil</a>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
