@@ -18,8 +18,6 @@
 <body>
 
 <jsp:include page="/WEB-INF/util/header.jsp">
-    <jsp:param name="pageTitle" value="Tableau de Bord Administrateur" />
-</jsp:include>
 
 <div class="container">
     <h2 class="mb-4">Liste des Résultats</h2>
@@ -60,10 +58,14 @@
         <p class="text-center">Aucun cours trouvé.</p>
     </c:if>
 </div>
+<div>
+<a href="student?action=downloadPdf&studentId=${sessionScope.loggedStudent.id} "class="btn btn-primary">Télécharger le relevé de notes (PDF)</a>
+</div>
+
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-<jsp:include page="footer.jsp" />
+<jsp:include page="/WEB-INF/util/footer.jsp" />
 </body>
 </html>
