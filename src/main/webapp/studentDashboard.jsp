@@ -10,6 +10,7 @@
     <div class="mt-3">
         <a href="course?action=studentList&student-id=${sessionScope.loggedStudent.id}" class="btn btn-primary">Voir les cours</a>
         <a href="result?action=studentList&student-id=${sessionScope.loggedStudent.id}" class="btn btn-primary">Voir les notes</a>
+        <a href="student?action=downloadPdf&studentId=${sessionScope.loggedStudent.id} "class="btn btn-primary">Télécharger le relevé de notes (PDF)</a>
     </div>
 </div>
 
