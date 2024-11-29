@@ -1,3 +1,4 @@
+
 package com.jeeproject.controller;
 
 import com.jeeproject.model.Course;
@@ -107,6 +108,14 @@ public class StudentController extends HttpServlet {
                 errorPage = "error.jsp";
                 viewGrades(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
+                break;
+            case "downloadPdf":
+                String studentId = request.getParameter("studentId");
+                if (studentId != null) {
+                    generateStudentGradesPdf(studentId, response);
+                } else {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Paramètre 'studentId' manquant.");
+                }
                 break;
             default:
                 ServletUtil.invalidAction(request, response);
@@ -282,21 +291,45 @@ public class StudentController extends HttpServlet {
         request.setAttribute("students", students);
     }
     
-    private void generateTranscript(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        int studentId = (int) request.getSession().getAttribute("student-id");
+    public void generateStudentGradesPdf(String studentId, HttpServletResponse response) {
+        try {
+            // Récupérer les informations nécessaires
+            Student student = studentService.getStudentById(studentId);
+            Map<Course, List<Result>> grades = ResultService.getResultsByStudentIdGroupedByCourse(studentId);
 
-        // Fetch grades
-        Map<Course, List<Result>> grades = ResultService.getResultsByStudentIdGroupedByCourse(studentId);
+            // Configuration de la réponse HTTP pour le téléchargement
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=\"releve_notes_" + studentId + ".pdf\"");
 
-        // Generate transcript (PDF or other format)
-        //byte[] transcript = TranscriptService.generate(grades);
-        // TODO
+            // Générer le PDF
+            try (PdfWriter writer = new PdfWriter(response.getOutputStream())) {
+                PdfDocument pdfDoc = new PdfDocument(writer);
+                Document document = new Document(pdfDoc);
 
-        // Send the transcript as a download
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename=transcript.pdf");
-        //response.getOutputStream().write(transcript);
-        // TODO
+                // Ajouter le contenu au PDF
+                document.add(new Paragraph("Relevé de Notes")
+                        .setFontSize(18)
+                        .setBold()
+                        .setTextAlignment(com.itextpdf.layout.property.TextAlignment.CENTER));
+
+                document.add(new Paragraph("Nom : " + student.getLastName()));
+                document.add(new Paragraph("Prénom : " + student.getFirstName()));
+                document.add(new Paragraph("\nNotes :").setBold());
+
+                for (Result result : grades) {
+                    document.add(new Paragraph(result.getCourseName() + " : " + result.getScore()));
+                }
+
+                document.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Erreur lors de la génération du PDF.");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
     
     private void notifyStudentGradePublication(Student student, String courseName, double grade) {
