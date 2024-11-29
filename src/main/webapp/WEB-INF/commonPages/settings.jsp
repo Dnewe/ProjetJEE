@@ -5,12 +5,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Étudiants</title>
+    <title>Changement de mot de passe</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+<jsp:include page="header.jsp" />
 <div class="container mt-5">
-    <h2 class="mb-4">Gestion des Étudiants</h2>
+    <h2 class="mb-4">Changer son mot de passe : </h2>
 
     <!-- Messages d'erreur ou de succès -->
     <c:if test="${not empty errorMessage}">
@@ -48,5 +49,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<jsp:include page="footer.jsp" />
 </body>
 </html>
