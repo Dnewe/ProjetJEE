@@ -37,30 +37,35 @@ public class CourseController extends HttpServlet {
         errorMessage = null;
         switch (action) {
             case "create":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "course?action=list");
                 errorPage = "error.jsp";
                 createCourse(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "update":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "course?action=list");
                 errorPage = "error.jsp";
                 updateCourse(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "delete":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "course?action=list");
                 errorPage = "error.jsp";
                 deleteCourse(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "assignProfessor":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "course?action=list");
                 errorPage = "error.jsp";
                 assignProfessorToCourse(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "removeProfessor":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "course?action=list");
                 errorPage = "error.jsp";
                 removeProfessorFromCourse(request);
@@ -83,33 +88,39 @@ public class CourseController extends HttpServlet {
         errorMessage = null;
         switch (action) {
             case "details":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/adminPages/course/courseDetails.jsp";
                 errorPage = "error.jsp";
                 viewCourse(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "list":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/adminPages/course/courses.jsp";
                 errorPage = "error.jsp";
                 viewCourses(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "studentList":
+                if (ServletUtil.notStudent(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/studentPages/courses.jsp";
                 errorPage = "error.jsp";
                 viewStudentCourses(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "professorList":
+                if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/professorPages/courses.jsp";
                 errorPage = "error.jsp";
                 viewProfessorCourses(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "createForm":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/course/createCourse.jsp";
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
             case "updateForm":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/course/updateCourse.jsp";
                 request.setAttribute("course", CourseService.getCourseById(TypeUtil.getIntFromString(request.getParameter("course-id"))));
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);

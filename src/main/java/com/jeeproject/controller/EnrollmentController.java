@@ -34,14 +34,17 @@ public class EnrollmentController extends HttpServlet {
         errorMessage = null;
         switch (action) {
             case "create":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "enrollment?action=list");
                 createEnrollment(request);
                 break;
             case "update":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "enrollment?action=list";
                 updateEnrollment(request);
                 break;
             case "delete":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, resultPage = "enrollment?action=list");
                 deleteEnrollment(request);
                 break;

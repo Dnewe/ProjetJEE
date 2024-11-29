@@ -1,8 +1,10 @@
 package com.jeeproject.util;
 
+import com.jeeproject.model.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
@@ -37,8 +39,30 @@ public class ServletUtil {
         response.getWriter().println("{\"error\": \"Invalid action\"}");
     }
 
+    public static void unauthorized(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.getRequestDispatcher("/WEB-INF/commonPages/unauthorized.jsp").forward(req, resp);
+    }
+
     public static boolean validString(String str) {
         return (str!=null && !str.isEmpty() && str.length()<100);
+    }
+
+    public static boolean notAdmin(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("loggedUser");
+        return user == null || !user.getRole().equals("admin");
+    }
+
+    public static boolean notProfessor(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("loggedUser");
+        return user == null || !user.getRole().equals("professor");
+    }
+
+    public static boolean notStudent(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("loggedUser");
+        return user == null || !user.getRole().equals("student");
     }
 
 

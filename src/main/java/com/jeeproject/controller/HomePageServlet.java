@@ -17,6 +17,7 @@ public class HomePageServlet extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("loggedUser");
         if (user == null) {
+            request.setAttribute("errorMessage", "Vous n'êtes pas connecté.");
             response.sendRedirect("login.jsp");
             return;
         }

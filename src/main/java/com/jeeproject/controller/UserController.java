@@ -37,18 +37,21 @@ public class UserController extends HttpServlet {
         errorMessage = null;
         switch (action) {
             case "create":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "user?action=list";
                 errorPage = "error.jsp";
                 createUser(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "update":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/adminPages/user/userDetails.jsp";
                 errorPage = "error.jsp";
                 updateUser(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "delete":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "user?action=list";
                 errorPage = "error.jsp";
                 deleteUser(request);
@@ -71,22 +74,26 @@ public class UserController extends HttpServlet {
         errorMessage = null;
         switch (action) {
             case "details":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/adminPages/user/userDetails.jsp";
                 errorPage = "error.jsp";
                 viewUser(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "list":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/adminPages/user/users.jsp";
                 errorPage = "error.jsp";
                 viewUsers(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "createForm":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/user/register.jsp";
                 request.setAttribute("selectedRole", request.getParameter("role"));
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
             case "updateForm":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/user/updateUser.jsp";
                 request.setAttribute("user", UserService.getUserById(TypeUtil.getIntFromString(request.getParameter("user-id"))));
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);

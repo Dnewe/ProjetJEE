@@ -41,18 +41,21 @@ public class StudentController extends HttpServlet {
         errorMessage = null;
         switch (action) {
             case "create":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "student?action=list";
                 errorPage = "error.jsp";
                 createStudent(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "update":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/students/studentDetails.jsp";
                 errorPage = "error.jsp";
                 updateStudent(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "delete":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "student?action=list";
                 errorPage = "error.jsp";
                 deleteStudent(request);
@@ -74,6 +77,7 @@ public class StudentController extends HttpServlet {
         errorMessage = null;
         switch (action) {
         	case "updateForm":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
         	    resultPage = "WEB-INF/adminPages/student/updateStudent.jsp";
         	    errorPage = "error.jsp";
         	    viewStudent(request); // Charge les informations de l'étudiant
@@ -86,37 +90,42 @@ public class StudentController extends HttpServlet {
         	    ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
         	    break;
             case "details":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/student/studentDetails.jsp";
                 errorPage = "error.jsp";
                 viewStudent(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "list":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/student/students.jsp";
                 errorPage = "error.jsp";
                 viewStudents(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "course_list":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/student/students.jsp";
                 errorPage = "error.jsp";
                 viewCourseStudents(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "viewEnrolledCourses":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/student/viewEnrolledCourses.jsp";
                 errorPage = "error.jsp";
                 viewEnrolledCourses(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "viewGrades":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/student/viewGrades.jsp";
                 errorPage = "error.jsp";
                 viewGrades(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "downloadPdf":
-                resultPage = "WEB-INF/adminPages/student/viewGrades.jsp";
+                resultPage = "studentDashboard.jsp";
                 errorPage = "error.jsp";
                 generateStudentGradesPdf(request, response);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);

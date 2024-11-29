@@ -37,18 +37,21 @@ public class ResultController extends HttpServlet {
         errorMessage = null;
         switch (action) {
             case "create":
+                if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "";
                 errorPage = "error.jsp";
                 createResult(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "update":
+                if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "/WEB-INF/views/resultDetails.jsp");
                 errorPage = "error.jsp";
                 updateResult(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "delete":
+                if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "";
                 errorPage = "error.jsp";
                 deleteResult(request);
@@ -71,34 +74,32 @@ public class ResultController extends HttpServlet {
         errorMessage = null;
         switch (action) {
             case "studentDetails":
+                if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "/WEB-INF/professorPages/studentDetails.jsp");
                 errorPage = "error.jsp";
                 viewStudentCourseResults(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "courseList":
+                if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/professorPages/students.jsp";
                 errorPage = "error.jsp";
                 viewCourseResults(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "studentList":
+                if (ServletUtil.notStudent(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/studentPages/results.jsp";
                 errorPage = "error.jsp";
                 viewStudentResults(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "updateForm":
+                if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/professorPages/updateResult.jsp";
                 request.setAttribute("result", ResultService.getResultById(TypeUtil.getIntFromString(request.getParameter("result-id"))));
                 request.setAttribute("student", StudentService.getStudentById(TypeUtil.getIntFromString(request.getParameter("student-id"))));
                 request.setAttribute("course", CourseService.getCourseById(TypeUtil.getIntFromString(request.getParameter("course-id"))));
-                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
-                break;
-            case "transcript":
-                resultPage = "";
-                errorPage = "error.jsp";
-                viewTranscript(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             default:

@@ -40,18 +40,21 @@ public class ProfessorController extends HttpServlet {
         errorMessage = null;
         switch (action) {
             case "create":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "professor?action=list";
                 errorPage = "error.jsp";
                 createProfessor(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "update":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "professor?action=list");
                 errorPage = "error.jsp";
                 updateProfessor(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "delete":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "professor?action=list";
                 errorPage = "error.jsp";
                 deleteProfessor(request);
@@ -82,18 +85,21 @@ public class ProfessorController extends HttpServlet {
         errorMessage = null;
         switch (action) {
             case "details":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/professor/professorDetails.jsp";
                 errorPage = "error.jsp";
                 viewProfessor(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "list":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/professor/professors.jsp";
                 errorPage = "error.jsp";
                 viewProfessors(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "updateForm":
+                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/professor/updateProfessor.jsp";
                 request.setAttribute("professor", ProfessorService.getProfessorById(TypeUtil.getIntFromString(request.getParameter("professor-id"))));
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);

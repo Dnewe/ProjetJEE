@@ -4,7 +4,8 @@
 </jsp:include>
 
 <div class="container admin-dashboard">
-    <h2>Que voulez-vous faire ?</h2>
+    <h2>Bienvenue sur l'espace Administrateur.</h2>
+    <h4>Que voulez-vous faire ?</h4>
 
     <div class="mt-3">
         <a href="user?action=list" class="btn btn-primary">Gérer les utilisateurs</a>
