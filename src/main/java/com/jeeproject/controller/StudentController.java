@@ -12,6 +12,7 @@ import com.jeeproject.model.Student;
 import com.jeeproject.model.User;
 import com.jeeproject.service.*;
 import com.jeeproject.util.EmailUtil;
+import com.jeeproject.util.MathUtil;
 import com.jeeproject.util.ServletUtil;
 import com.jeeproject.util.TypeUtil;
 import jakarta.mail.MessagingException;
@@ -40,13 +41,13 @@ public class StudentController extends HttpServlet {
 
         errorMessage = null;
         switch (action) {
-            case "create":
+            /*case "create":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "student?action=list";
                 errorPage = "error.jsp";
                 createStudent(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
-                break;
+                break;*/
             case "update":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/students/studentDetails.jsp";
@@ -83,12 +84,6 @@ public class StudentController extends HttpServlet {
         	    viewStudent(request); // Charge les informations de l'étudiant
         	    ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
         	    break;
-        	case "create":
-        	    resultPage = "WEB-INF/adminPages/student/students.jsp";
-        	    errorPage = "error.jsp";
-        	    createStudent(request);
-        	    ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
-        	    break;
             case "details":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/student/studentDetails.jsp";
@@ -103,9 +98,9 @@ public class StudentController extends HttpServlet {
                 viewStudents(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
-            case "course_list":
-                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
-                resultPage = "WEB-INF/adminPages/student/students.jsp";
+            case "courseList":
+                if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
+                resultPage = "WEB-INF/professorPages/students.jsp";
                 errorPage = "error.jsp";
                 viewCourseStudents(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
@@ -115,19 +110,6 @@ public class StudentController extends HttpServlet {
                 resultPage = "WEB-INF/adminPages/student/viewEnrolledCourses.jsp";
                 errorPage = "error.jsp";
                 viewEnrolledCourses(request);
-                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
-                break;
-            case "viewGrades":
-                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
-                resultPage = "WEB-INF/adminPages/student/viewGrades.jsp";
-                errorPage = "error.jsp";
-                viewGrades(request);
-                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
-                break;
-            case "downloadPdf":
-                resultPage = "studentDashboard.jsp";
-                errorPage = "error.jsp";
-                generateStudentGradesPdf(request, response);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             default:
@@ -191,14 +173,6 @@ public class StudentController extends HttpServlet {
         // Fetch enrolled courses from the service
         List<Course> enrolledCourses = CourseService.getCoursesByStudentId(studentId);
         request.setAttribute("enrolled-courses", enrolledCourses);
-    }
-    
-    private void viewGrades(HttpServletRequest request) {
-        int studentId = (int) request.getSession().getAttribute("student-id");
-
-        // Fetch grades and averages from the service
-        Map<Course, List<Result>> grades = ResultService.getResultsByStudentIdGroupedByCourse(studentId);
-        request.setAttribute("grades", grades);
     }
 
     private void updateStudent(HttpServletRequest request) {
@@ -286,26 +260,35 @@ public class StudentController extends HttpServlet {
         try {
             EmailUtil.sendEmail(student.getUser().getEmail(), subject, message);
         } catch (MessagingException e) {
-            e.printStackTrace();
-            System.err.println("échec de l'envoi de l'email à l'étudiant : " + student.getId());
+            errorMessage = "échec de l'envoi de l'email à l'étudiant : " + student.getId();
         }
     }
 
     
     private void viewCourseStudents(HttpServletRequest request) {
         // get parameters
+        String search = request.getParameter("search");
         int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
         // verify parameters
         if (courseId == -1 || CourseService.getCourseById(courseId) == null) {
             errorMessage = "Cours introuvable.";
             return;
         }
-        // get students
-        List<Student> students = StudentService.getStudentsByCourseId(courseId);
+        // get filtered students
+        List<Student> students = StudentService.getFilteredStudents(search, courseId);
         request.setAttribute("students", students);
+        // get average
+        Map<Student, List<Result>> resultsByStudent = ResultService.getResultsByCourseIdGroupedByStudent(courseId);
+        Map<Student, Double> averageByStudent = resultsByStudent.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> MathUtil.calculateAverage(entry.getValue())
+                ));
+        request.setAttribute("averageByStudent", averageByStudent);
+        request.setAttribute("course", CourseService.getCourseById(courseId));
     }
     
-    public void generateStudentGradesPdf(HttpServletRequest request, HttpServletResponse response) {
+    /*public void generateStudentGradesPdf(HttpServletRequest request, HttpServletResponse response) {
         // get parameters
         int studentId = TypeUtil.getIntFromString(request.getParameter("student-id"));
         // verify parameters
@@ -327,61 +310,25 @@ public class StudentController extends HttpServlet {
 
         // Générer le PDF
         try {
-            PdfWriter writer = new PdfWriter(response.getOutputStream());
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            pdfDoc.addNewPage();
-            Document document = new Document(pdfDoc);
-
-            // Ajouter le contenu au PDF
-            document.add(new Paragraph("Relevé de Notes")
-                    .setFontSize(18)
-                    .setBold()
-                    .setTextAlignment(TextAlignment.CENTER));
-
-            document.add(new Paragraph("Nom : " + student.getLastName()));
-            document.add(new Paragraph("Prénom : " + student.getFirstName()));
-            document.add(new Paragraph("\nNotes :").setBold());
-
-            for (Map.Entry<Course, List<Result>> entry : resultsByCourse.entrySet()) {
-                document.add(new Paragraph((entry.getKey()).getName()).setUnderline());
-                for (Result result : entry.getValue()) {
-                    document.add(new Paragraph( "    "
-                            + result.getAssessmentName() + " (coeff " + result.getWeight() + ") : "
-                            + result.getGrade() + " / " + result.getMaxScore()));
-                }
-                document.add(new Paragraph("    " + "moyenne :" + averageByCourse.get(entry.getKey()) + " / 20"));
-                document.add(new Paragraph("\n"));
-            }
-            document.close();
+            TranscriptService.download(response, student, resultsByCourse, averageByCourse);
         } catch (Exception e) {
             errorMessage = "Création du pdf impossible.";
         }
-    }
+    }*/
     
     private void notifyStudentGradePublication(Student student, String courseName, double grade) {
         String subject = "Nouvelle note publiée";
         String message = String.format(
-            "Bonjour %s,\n\nUne nouvelle note a été publiée pour le cours : %s.\n\nNote obtenue : %.2f\n\nCordialement,\nL'équipe de gestion",
+            "Bonjour %s,\n\nUne nouvelle note a été publiée pour le cours : %s.\n\nCordialement,\nL'équipe de gestion",
             student.getFirstName(),
-            courseName,
-            grade
+            courseName
         );
 
         try {
             EmailUtil.sendEmail(student.getUser().getEmail(), subject, message);
         } catch (MessagingException e) {
             e.printStackTrace();
-            System.err.println("échec de l'envoi de l'email pour la publication de la note.");
+            errorMessage = "échec de l'envoi de l'email pour la publication de la note.";
         }
-    }
-
-    private static double calculateAverage(List<Result> results) {
-        double totalWeightedGrades = 0.0;
-        double totalWeights = 0.0;
-        for (Result result : results) {
-            totalWeightedGrades += result.getGrade() / result.getMaxScore() * result.getWeight();
-            totalWeights += result.getWeight();
-        }
-        return Math.round((totalWeights == 0.0 ? 0.0 : totalWeightedGrades / totalWeights)*20*100)/100.;
     }
 }

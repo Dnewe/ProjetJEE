@@ -41,7 +41,7 @@
                 <td>${course.name}</td>
                 <td>${course.description}</td>
                 <td>${course.professor != null ? course.professor.firstName: ""} ${course.professor != null ? " ": "Aucun"} ${course.professor != null ? course.professor.lastName: ""}</td>
-                <td><a href="result?action=courseList&course-id=${course.id}" class="btn btn-primary">Liste étudiants</a></td>
+                <td><a href="student?action=courseList&course-id=${course.id}" class="btn btn-primary">Liste étudiants</a></td>
             </tr>
         </c:forEach>
         </tbody>

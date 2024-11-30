@@ -28,7 +28,7 @@
             </div>
         </div>
 
-        <h4 class="mt-4">Cours assignés à cet étudiant :</h4>
+        <h4 class="mt-4">Cours inscrtis</h4>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -47,32 +47,35 @@
                             <input type="hidden" name="result-page" value="student?action=details&student-id=${student.id}">
                             <input type="hidden" name="student-id" value="${student.id}">
                             <input type="hidden" name="course-id" value="${course.id}">
-                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                            <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
                         </form></td>
                     </tr>
                 </c:forEach>
             </tbody>
         </table>
-
+        <br>
         <!-- Formulaire pour inscrire un cours -->
-        <h4>Inscrire l'étudiant à un Cours</h4>
-        <form action="${pageContext.request.contextPath}/enrollment" method="post">
+        <h4>Inscrire à un Cours</h4>
+        <form class="d-flex" action="${pageContext.request.contextPath}/enrollment" method="post">
             <input type="hidden" name="action" value="create">
             <input type="hidden" name="result-page" value="student?action=details&student-id=${student.id}">
             <input type="hidden" name="student-id" value="${student.id}">
 
-            <div class="form-group">
-                <label for="course">Choisir un Cours</label>
-                <select name="course-id" id="course" class="form-control">
-                    <option value="">Sélectionner un cours</option>
-                    <c:forEach var="course" items="${availableCourses}">
-                        <option value="${course.id}">${course.name}</option>
-                    </c:forEach>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Inscrire</button>
+            <select class="form-select form-select-sm mr-sm-2" name="course-id" id="course" class="form-control">
+                <option value="">Sélectionner un cours</option>
+                <c:forEach var="course" items="${availableCourses}">
+                    <option value="${course.id}">${course.name}</option>
+                </c:forEach>
+            </select>
+            <button type="submit" class="btn btn-primary btn-sm">Inscrire</button>
         </form>
 
+        <div class="mt-4">
+            <h4>Administratif</h4>
+            <a href="${pageContext.request.contextPath}/transcript?student-id=${student.id}" class="btn btn-primary">Créer Relevé de notes</a>
+        </div>
+
+        <br>
         <div class="mt-4">
             <a href="${pageContext.request.contextPath}/student?action=updateForm&student-id=${student.id}" class="btn btn-warning">Modifier</a>
             <!-- Formulaire pour la suppression en POST -->

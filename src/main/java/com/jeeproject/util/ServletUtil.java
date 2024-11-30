@@ -26,7 +26,7 @@ public class ServletUtil {
     }
 
     public static void redirect(HttpServletRequest req, HttpServletResponse resp, String redirectPage, String errorPage, String errorMessage) throws ServletException, IOException {
-        if (errorMessage==null) {
+        if (errorMessage==null || errorMessage.isEmpty()) {
             resp.sendRedirect(redirectPage);
         } else {
             req.setAttribute("error", errorMessage);

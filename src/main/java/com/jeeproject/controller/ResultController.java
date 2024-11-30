@@ -1,11 +1,12 @@
 package com.jeeproject.controller;
 
-import com.jeeproject.model.Course;
-import com.jeeproject.model.Result;
-import com.jeeproject.model.Student;
+import com.jeeproject.model.*;
 import com.jeeproject.service.*;
+import com.jeeproject.util.EmailUtil;
+import com.jeeproject.util.MathUtil;
 import com.jeeproject.util.ServletUtil;
 import com.jeeproject.util.TypeUtil;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,8 +24,8 @@ import java.util.stream.Collectors;
 public class ResultController extends HttpServlet {
 
     String resultPage;
-    String errorPage;
-    String errorMessage;
+    String errorPage = "/WEB-INF/commonPages/error.jsp";;
+    String errorMessage = "NO MESSAGE";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -38,21 +40,28 @@ public class ResultController extends HttpServlet {
         switch (action) {
             case "create":
                 if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
-                resultPage = "";
-                errorPage = "error.jsp";
+                resultPage = ServletUtil.getResultPage(request, "course?action=professorList&professor-id=" + ((Professor)request.getSession().getAttribute("loggedProfessor")).getId());
+                errorPage = "/WEB-INF/commonPages/error.jsp";
                 createResult(request);
+                ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
+                break;
+            case "createMultiple":
+                if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
+                resultPage = ServletUtil.getResultPage(request, "course?action=professorList&professor-id=" + ((Professor)request.getSession().getAttribute("loggedProfessor")).getId());
+                errorPage = "/WEB-INF/commonPages/error.jsp";
+                createResults(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "update":
                 if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "/WEB-INF/views/resultDetails.jsp");
-                errorPage = "error.jsp";
+                errorPage = "/WEB-INF/commonPages/error.jsp";
                 updateResult(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "delete":
                 if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
-                resultPage = "";
+                resultPage = ServletUtil.getResultPage(request, "course?action=professorList&professor-id=" + ((Professor)request.getSession().getAttribute("loggedProfessor")).getId());
                 errorPage = "error.jsp";
                 deleteResult(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
@@ -80,13 +89,6 @@ public class ResultController extends HttpServlet {
                 viewStudentCourseResults(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
-            case "courseList":
-                if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
-                resultPage = "/WEB-INF/professorPages/students.jsp";
-                errorPage = "error.jsp";
-                viewCourseResults(request);
-                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
-                break;
             case "studentList":
                 if (ServletUtil.notStudent(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/studentPages/results.jsp";
@@ -94,12 +96,22 @@ public class ResultController extends HttpServlet {
                 viewStudentResults(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
+            case "createForm":
+                if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
+                resultPage = "WEB-INF/professorPages/gradeStudent.jsp";
+                addCreateFormParams(request);
+                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
+                break;
+            case "createMultipleForm":
+                if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
+                resultPage = "WEB-INF/professorPages/gradeStudents.jsp";
+                addCreateMultipleFormParams(request);
+                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
+                break;
             case "updateForm":
                 if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/professorPages/updateResult.jsp";
-                request.setAttribute("result", ResultService.getResultById(TypeUtil.getIntFromString(request.getParameter("result-id"))));
-                request.setAttribute("student", StudentService.getStudentById(TypeUtil.getIntFromString(request.getParameter("student-id"))));
-                request.setAttribute("course", CourseService.getCourseById(TypeUtil.getIntFromString(request.getParameter("course-id"))));
+                addUpdateFormParams(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             default:
@@ -114,7 +126,9 @@ public class ResultController extends HttpServlet {
         int maxScore = TypeUtil.getIntFromString(request.getParameter("max-score"));
         double weight = TypeUtil.getDoubleFromString(request.getParameter("weight"));
         String assessmentName = request.getParameter("assessment-name");
-        int enrollmentId = TypeUtil.getIntFromString(request.getParameter("enrollment-id"));
+        int studentId = TypeUtil.getIntFromString(request.getParameter("student-id"));
+        int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
+        Enrollment enrollment = EnrollmentService.getEnrollmentByStudentIdAndCourseId(studentId, courseId);
         Date entryDate = new Date();
         // verify parameters
         if (!ServletUtil.validString(assessmentName)) {
@@ -125,13 +139,13 @@ public class ResultController extends HttpServlet {
             errorMessage = "Note invalide.";
             return;
         }
-        if (enrollmentId == -1 || EnrollmentService.getEnrollmentById(enrollmentId) == null) {
+        if (enrollment == null) {
             errorMessage = "L'étudiant n'est pas inscrit au cours.";
             return;
         }
         // create result
         Result result = new Result();
-        result.setEnrollment(EnrollmentService.getEnrollmentById(enrollmentId));
+        result.setEnrollment(enrollment);
         result.setGrade(grade);
         result.setMaxScore(maxScore);
         result.setWeight(weight);
@@ -139,6 +153,61 @@ public class ResultController extends HttpServlet {
         result.setEntryDate(entryDate);
         // add result
         ResultService.addResult(result);
+        //notifyStudentGradePublication(StudentService.getStudentById(studentId), CourseService.getCourseById(courseId));
+    }
+
+    private void createResults(HttpServletRequest request) {
+        // get global parameters
+        String assessmentName = request.getParameter("assessment-name");
+        int maxScore = TypeUtil.getIntFromString(request.getParameter("max-score"));
+        double weight = TypeUtil.getDoubleFromString(request.getParameter("weight"));
+        int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
+        Date entryDate = new Date();
+        // check parameters
+        if (!ServletUtil.validString(assessmentName)) {
+            errorMessage = "Nom du devoir invalide.";
+            return;
+        }
+        if (maxScore <= 0 || weight <= 0 || maxScore>1000 || weight>1000) {
+            errorMessage = "Valeurs globales invalides.";
+            return;
+        }
+        // get student grades
+        Enumeration<String> parameterNames = request.getParameterNames();
+        while (parameterNames.hasMoreElements()) {
+            String paramName = parameterNames.nextElement();
+            if (paramName.startsWith("grades[")) {
+                // get student id
+                String studentIdStr = paramName.substring(7, paramName.length() - 1);
+                int studentId = TypeUtil.getIntFromString(studentIdStr);
+                // get grade
+                String gradeStr = request.getParameter(paramName);
+                if (ServletUtil.validString(gradeStr)) {
+                    double grade = TypeUtil.getDoubleFromString(gradeStr);
+                    // check grade
+                    if (!validGrade(grade, maxScore, weight)) {
+                        continue; // Ignore this grade
+                    }
+                    // get enrollment
+                    Enrollment enrollment = EnrollmentService.getEnrollmentByStudentIdAndCourseId(studentId, courseId);
+                    if (enrollment == null) {
+                        continue; // Ignorer this grade
+                    }
+
+                    // create result
+                    Result result = new Result();
+                    result.setEnrollment(enrollment);
+                    result.setGrade(grade);
+                    result.setMaxScore(maxScore);
+                    result.setWeight(weight);
+                    result.setAssessmentName(assessmentName);
+                    result.setEntryDate(entryDate);
+                    // add result
+                    ResultService.addResult(result);
+                    //notifyStudentGradePublication(StudentService.getStudentById(studentId), CourseService.getCourseById(courseId));
+                }
+            }
+        }
     }
 
 
@@ -170,7 +239,6 @@ public class ResultController extends HttpServlet {
         request.setAttribute("result", result);
     }
 
-
     private  void deleteResult(HttpServletRequest request) {
         // get parameters
         int resultId = TypeUtil.getIntFromString(request.getParameter("result-id"));
@@ -181,28 +249,6 @@ public class ResultController extends HttpServlet {
         }
         // delete result
         ResultService.deleteResult(resultId);
-    }
-
-    private void viewCourseResults(HttpServletRequest request) {
-        // get parameters
-        int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
-        // verify parameters
-        if (courseId == -1 || CourseService.getCourseById(courseId) == null) {
-            errorMessage = "Cours introuvable.";
-            return;
-        }
-        // get course
-        request.setAttribute("course", CourseService.getCourseById(courseId));
-        // get results
-        Map<Student, List<Result>> resultsByStudent = ResultService.getResultsByCourseIdGroupedByStudent(courseId);
-        request.setAttribute("resultsByStudent", resultsByStudent);
-        // get average
-        Map<Student, Double> averageByStudent = resultsByStudent.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> calculateAverage(entry.getValue())
-                ));
-        request.setAttribute("averageByStudent", averageByStudent);
     }
 
     private void viewStudentResults(HttpServletRequest request) {
@@ -220,7 +266,7 @@ public class ResultController extends HttpServlet {
         Map<Course, Double> averageByCourse = resultsByCourse.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        entry -> calculateAverage(entry.getValue())
+                        entry -> MathUtil.calculateAverage(entry.getValue())
                 ));
         request.setAttribute("averageByCourse", averageByCourse);
     }
@@ -230,7 +276,7 @@ public class ResultController extends HttpServlet {
         int studentId = TypeUtil.getIntFromString(request.getParameter("student-id"));
         int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
         // verify parameters
-        if (studentId == -1 || CourseService.getCourseById(studentId) == null) {
+        if (studentId == -1 || StudentService.getStudentById(studentId) == null) {
             errorMessage = "Etudiant introuvable.";
             return;
         }
@@ -241,40 +287,75 @@ public class ResultController extends HttpServlet {
         // get results and average
         List<Result> results = ResultService.getResultsByStudentIdAndCourseId(studentId, courseId);
         request.setAttribute("results", results);
-        request.setAttribute("average", calculateAverage(results));
+        request.setAttribute("average", MathUtil.calculateAverage(results));
         // get course and student
         request.setAttribute("course", CourseService.getCourseById(courseId));
         request.setAttribute("student", StudentService.getStudentById(studentId));
     }
-    
-    /*public void publishGrade(int studentId, int courseId, double grade) {
-        // Logique pour ajouter/modifier une note
-        GradeService.addGrade(studentId, courseId, grade);
 
-        // R�cup�rer les informations de l'�tudiant et du cours
-        Student student = StudentService.getStudentById(studentId);
-        Course course = CourseService.getCourseById(courseId);
+    private void notifyStudentGradePublication(Student student, Course course) {
+        String subject = "Nouvelle note publiée";
+        String message = String.format(
+                "Bonjour %s,\n\nUne nouvelle note a été publiée pour le cours : %s.\n\nCordialement,\nL'équipe de gestion",
+                student.getFirstName(),
+                course.getName()
+        );
 
-        // Notifier l'�tudiant
-        notifyStudentGradePublication(student, course.getName(), grade);
-    }*/
+        try {
+            EmailUtil.sendEmail(student.getUser().getEmail(), subject, message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            errorMessage = "échec de l'envoi de l'email pour la publication de la note.";
+        }
+    }
 
+    private void addCreateFormParams(HttpServletRequest request) {
+        // get parameters
+        int studentId = TypeUtil.getIntFromString(request.getParameter("student-id"));
+        int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
+        // verify parameters
+        if (studentId == -1 || StudentService.getStudentById(studentId) == null) {
+            errorMessage = "Etudiant introuvable.";
+            return;
+        }
+        if (courseId == -1 || CourseService.getCourseById(courseId) == null) {
+            errorMessage = "Cours introuvable.";
+            return;
+        }
+        request.setAttribute("student", StudentService.getStudentById(studentId));
+        request.setAttribute("course", CourseService.getCourseById(courseId));
+    }
+
+    private void addCreateMultipleFormParams(HttpServletRequest request) {
+        // get parameters
+        int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
+        // verify parameters
+        if (courseId == -1 || CourseService.getCourseById(courseId) == null) {
+            errorMessage = "Cours introuvable.";
+            return;
+        }
+        request.setAttribute("students", StudentService.getStudentsByCourseId(courseId));
+        request.setAttribute("course", CourseService.getCourseById(courseId));
+    }
+
+    private void addUpdateFormParams(HttpServletRequest request) {
+        // add common create form params
+        addCreateFormParams(request);
+        // get param
+        int resultId = TypeUtil.getIntFromString(request.getParameter("result-id"));
+        // verify parameters
+        if (resultId == -1 || ResultService.getResultById(resultId) == null) {
+            errorMessage = "Resultat introuvable.";
+            return;
+        }
+        request.setAttribute("result", ResultService.getResultById(resultId));
+    }
 
     private void viewTranscript(HttpServletRequest request) {
         // TODO
     }
 
     private boolean validGrade(double grade, double maxScore, double weight) {
-        return (grade>0 && maxScore>0 && weight>0) && (grade<1000 && maxScore<1000 && weight<1000) && grade <= maxScore;
-    }
-
-    private static double calculateAverage(List<Result> results) {
-        double totalWeightedGrades = 0.0;
-        double totalWeights = 0.0;
-        for (Result result : results) {
-            totalWeightedGrades += result.getGrade() / result.getMaxScore() * result.getWeight();
-            totalWeights += result.getWeight();
-        }
-        return Math.round((totalWeights == 0.0 ? 0.0 : totalWeightedGrades / totalWeights)*20*100)/100.;
+        return (grade>=0 && maxScore>0 && weight>=0) && (grade<1000 && maxScore<1000 && weight<1000) && grade <= maxScore;
     }
 }

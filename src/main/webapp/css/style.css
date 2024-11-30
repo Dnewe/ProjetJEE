@@ -68,7 +68,12 @@ h1, h2, h3 {
 }
 
 /* Boutons */
-button, .btn {
+/*
+.btn {
+    font-size: inherit;
+    padding: inherit;
+}*/
+/*button, .btn {
     display: inline-block;
     padding: 10px 15px;
     margin: 10px 5px;
@@ -79,7 +84,7 @@ button, .btn {
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.3s ease;
-}
+}*/
 
 button:hover, .btn:hover {
     background-color: #0056b3;
@@ -88,35 +93,47 @@ button:hover, .btn:hover {
 }
 
 /* Couleurs des boutons */
+/*
 .btn-primary {
+    font-size: inherit;
+    padding: inherit;
     background-color: #007bff;
     color: white;
 }
 
 .btn-secondary {
+    font-size: inherit;
+    padding: inherit;
     background-color: #6c757d;
     color: white;
 }
 
 .btn-info {
+    font-size: inherit;
+    padding: inherit;
     background-color: #17a2b8;
     color: white;
 }
 
 .btn-success {
+    font-size: inherit;
+    padding: inherit;
     background-color: #28a745;
     color: white;
 }
-
 .btn-warning {
+    font-size: inherit;
+    padding: inherit;
     background-color: #ffc107;
     color: white;
 }
 
 .btn-dark {
+    font-size: inherit;
+    padding: inherit;
     background-color: #343a40;
     color: white;
-}
+}*/
 
 /* Tables */
 table {
@@ -194,10 +211,10 @@ body.login-page header, body.login-page footer {
         padding: 15px;
     }
 
-    .btn, button {
+    /*.btn, button {
         display: block;
         width: 100%;
         margin: 10px 0;
         text-align: center;
-    }
+    }*/
 }
