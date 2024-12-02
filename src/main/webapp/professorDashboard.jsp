@@ -5,6 +5,7 @@
 
 <div class="container admin-dashboard">
     <h2>Bienvenue sur votre espace enseignant, ${sessionScope.loggedProfessor.firstName} ${sessionScope.loggedProfessor.lastName}!</h2>
+    <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
     <h4>Que voulez-vous faire ?</h4>
 
     <div class="mt-3">

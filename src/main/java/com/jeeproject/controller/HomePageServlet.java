@@ -18,7 +18,7 @@ public class HomePageServlet extends HttpServlet {
         User user = (User) session.getAttribute("loggedUser");
         if (user == null) {
             request.setAttribute("errorMessage", "Vous n'êtes pas connecté.");
-            response.sendRedirect("login.jsp");
+            request.getRequestDispatcher("login.jsp").forward(request, response);
             return;
         }
         String role = user.getRole();

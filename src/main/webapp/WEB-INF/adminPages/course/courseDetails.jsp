@@ -14,6 +14,8 @@
     <div class="container mt-4">
         <h2>Détails du Cours</h2>
 
+        <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
+
         <!-- Afficher les détails du cours -->
         <table class="table table-bordered">
             <tr>

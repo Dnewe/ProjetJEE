@@ -20,11 +20,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@WebServlet(name = "TranscriptController", urlPatterns = "/transcript")
+@WebServlet(name = "TranscriptServlet", urlPatterns = "/transcript")
 public class TranscriptServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String errorMessage = "";
+        String errorMessage = null;
         // get parameters
         int studentId = TypeUtil.getIntFromString(request.getParameter("student-id"));
         String comment = request.getParameter("comment");

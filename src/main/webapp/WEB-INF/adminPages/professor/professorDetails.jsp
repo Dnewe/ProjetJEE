@@ -13,6 +13,7 @@
 <jsp:include page="/WEB-INF/util/header.jsp" />
     <div class="container mt-4">
         <h2>Détails du Professeur</h2>
+        <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
 
         <table class="table table-bordered">
             <tr>

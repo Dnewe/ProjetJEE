@@ -16,9 +16,9 @@ import java.io.IOException;
 @WebServlet(name = "SettingsServlet", urlPatterns = "/settings")
 public class SettingsServlet extends HttpServlet {
 
-    String resultPage;
-    String errorPage = "/WEB-INF/commonPages/settings.jsp";
-    String errorMessage;
+    private String resultPage;
+    private String errorPage = "/WEB-INF/commonPages/settings.jsp";
+    private String errorMessage;
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -32,7 +32,7 @@ public class SettingsServlet extends HttpServlet {
         errorMessage = null;
         switch (action) {
             case "changePassword":
-                resultPage = "settings.jsp";
+                resultPage = "/WEB-INF/commonPages/settings.jsp";
                 errorPage = "/WEB-INF/commonPages/settings.jsp";
                 changePassword(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
@@ -68,11 +68,11 @@ public class SettingsServlet extends HttpServlet {
         String newPassword = request.getParameter("new-password");
         // check parameters
         HttpSession session = request.getSession();
-        if (session.getAttribute("logged-user")==null) {
+        if (session.getAttribute("loggedUser")==null) {
             errorMessage = "Vous n'êtes pas connecté.";
             return;
         }
-        User user = (User) session.getAttribute("logged-user");
+        User user = (User) session.getAttribute("loggedUser");
         if (!user.getPassword().equals(oldPassword)) {
             errorMessage = "L'ancien mot de passe est incorrect";
             return;
@@ -84,7 +84,7 @@ public class SettingsServlet extends HttpServlet {
         // change password
         user.setPassword(newPassword);
         UserService.updateUser(user);
-        request.setAttribute("success-message", "Mot de passe modifié avec succès.");
+        request.setAttribute("successMessage", "Mot de passe modifié avec succès.");
     }
 
 

@@ -13,11 +13,7 @@
 <div class="container">
 
     <!-- Messages d'erreur ou de succès -->
-    <c:if test="${not empty errorMessage}">
-        <div class="alert alert-danger">
-                ${errorMessage}
-        </div>
-    </c:if>
+    <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
 
     <h2>Connexion</h2><br><br>
     <form action="login" method="post">
@@ -27,7 +23,7 @@
         <label for="password">Mot de passe :</label>
         <input type="password" id="password" name="password" required><br><br>
 
-        <button type="submit">Se connecter</button>
+        <button type="submit" class="btn btn-primary">Se connecter </button>
         <p class="error-message">
             <% if (request.getAttribute("error") != null) { %>
             <%= request.getAttribute("error") %>

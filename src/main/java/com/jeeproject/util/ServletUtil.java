@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class ServletUtil {
 
@@ -18,19 +20,53 @@ public class ServletUtil {
 
     public static void forward(HttpServletRequest req, HttpServletResponse resp, String forwardPage, String errorPage, String errorMessage) throws ServletException, IOException {
         if (errorMessage==null) {
+            if (req.getParameter("successMessage")!=null) {
+                req.setAttribute("successMessage", req.getParameter("successMessage"));
+            }
+            if (req.getParameter("errorMessage")!=null) {
+                req.setAttribute("errorMessage", req.getParameter("errorMessage"));
+            }
             req.getRequestDispatcher(forwardPage).forward(req, resp);
         } else {
-            req.setAttribute("errorMessage", errorMessage);
-            req.getRequestDispatcher(errorPage).forward(req, resp);
+            String encodedMessage = URLEncoder.encode(errorMessage, StandardCharsets.UTF_8);
+            errorPage += (errorPage.contains("?"))? "&": "?";
+            errorPage += "errorMessage=" + encodedMessage;
+            resp.sendRedirect(errorPage);
+            /*req.setAttribute("errorMessage", errorMessage);
+            req.getRequestDispatcher(errorPage).forward(req, resp);*/
         }
     }
 
     public static void redirect(HttpServletRequest req, HttpServletResponse resp, String redirectPage, String errorPage, String errorMessage) throws ServletException, IOException {
         if (errorMessage==null || errorMessage.isEmpty()) {
+            if (req.getAttribute("successMessage") != null) {
+                String successMessage = (String) req.getAttribute("successMessage");
+                String encodedMessage = URLEncoder.encode(successMessage, StandardCharsets.UTF_8);
+                redirectPage += (redirectPage.contains("?"))? "&": "?";
+                redirectPage += "successMessage=" + encodedMessage;
+            }
             resp.sendRedirect(redirectPage);
         } else {
-            req.setAttribute("error", errorMessage);
-            req.getRequestDispatcher(errorPage).forward(req, resp);
+            String encodedMessage = URLEncoder.encode(errorMessage, StandardCharsets.UTF_8);
+            errorPage += (errorPage.contains("?"))? "&": "?";
+            errorPage += "errorMessage=" + encodedMessage;
+            resp.sendRedirect(errorPage);
+        }
+    }
+
+    public static void redirect_(HttpServletRequest req, HttpServletResponse resp, String redirectPage, String errorPage, String errorMessage, boolean redirectError) throws ServletException, IOException {
+        if (errorMessage==null || errorMessage.isEmpty()) {
+            redirect(req, resp, redirectPage, errorPage, errorMessage);
+        } else {
+            if (!redirectError) {
+                req.setAttribute("errorMessage", errorMessage);
+                req.getRequestDispatcher(errorPage).forward(req, resp);
+            } else {
+                String encodedMessage = URLEncoder.encode(errorMessage, StandardCharsets.UTF_8);
+                errorPage += (errorPage.contains("?"))? "&": "?";
+                errorPage += "errorMessage=" + encodedMessage;
+                resp.sendRedirect(errorPage);
+            }
         }
     }
 

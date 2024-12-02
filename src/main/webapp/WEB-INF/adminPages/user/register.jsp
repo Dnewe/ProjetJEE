@@ -16,6 +16,8 @@
 <jsp:include page="/WEB-INF/util/header.jsp" />
 <div class="container mt-5">
     <h2>Inscription Utilisateur</h2>
+    <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
+
     <form action="${pageContext.request.contextPath}/register" method="post">
         <div class="mb-3">
             <label for="email" class="form-label">Email</label>

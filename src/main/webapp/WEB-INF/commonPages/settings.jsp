@@ -11,19 +11,8 @@
 <body>
 <jsp:include page="/WEB-INF/util/header.jsp" />
 <div class="container mt-5">
-    <h2 class="mb-4">Changer son mot de passe : </h2>
-
-    <!-- Messages d'erreur ou de succès -->
-    <c:if test="${not empty errorMessage}">
-        <div class="alert alert-danger">
-                ${errorMessage}
-        </div>
-    </c:if>
-    <c:if test="${not empty successMessage}">
-        <div class="alert alert-success">
-                ${successMessage}
-        </div>
-    </c:if>
+    <h2 class="mb-4">Paramètres </h2>
+    <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
 
     <!-- Formulaire pour changer de mot de passe -->
     <h4>Modifier votre mot de passe.</h4>

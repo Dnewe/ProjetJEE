@@ -21,9 +21,9 @@ import java.util.List;
 @WebServlet(name = "UserController", urlPatterns = "/user")
 public class UserController extends HttpServlet {
 
-    String resultPage;
-    String errorPage;
-    String errorMessage;
+    private String resultPage;
+    private String errorPage = ServletUtil.defaultErrorPage;
+    private String errorMessage;
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -36,24 +36,24 @@ public class UserController extends HttpServlet {
 
         errorMessage = null;
         switch (action) {
-            case "create":
+            /*case "create":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "user?action=list";
                 errorPage = "error.jsp";
                 createUser(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
-                break;
+                break;*/
             case "update":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/adminPages/user/userDetails.jsp";
-                errorPage = "error.jsp";
+                errorPage = "user?action=list";
                 updateUser(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "delete":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "user?action=list";
-                errorPage = "error.jsp";
+                errorPage = "user?action=list";
                 deleteUser(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
@@ -76,14 +76,13 @@ public class UserController extends HttpServlet {
             case "details":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/adminPages/user/userDetails.jsp";
-                errorPage = "error.jsp";
+                errorPage = "user?action=list";
                 viewUser(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "list":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/adminPages/user/users.jsp";
-                errorPage = "error.jsp";
                 viewUsers(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
@@ -95,7 +94,8 @@ public class UserController extends HttpServlet {
             case "updateForm":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/user/updateUser.jsp";
-                request.setAttribute("user", UserService.getUserById(TypeUtil.getIntFromString(request.getParameter("user-id"))));
+                errorPage = "user?action=list";
+                setUpdateFormParam(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
             default:
                 ServletUtil.invalidAction(request, response);
@@ -103,7 +103,7 @@ public class UserController extends HttpServlet {
     }
 
 
-    private void createUser(HttpServletRequest request) {
+    /*private void createUser(HttpServletRequest request) {
         // get parameters
         String email = request.getParameter("email");
         String password = request.getParameter("password");
@@ -128,7 +128,7 @@ public class UserController extends HttpServlet {
         user.setRole(role);
         // add user
         UserService.addUser(user);
-    }
+    }*/
 
 
     private void updateUser(HttpServletRequest request) {
@@ -147,6 +147,7 @@ public class UserController extends HttpServlet {
         if (ServletUtil.validString(password)) { user.setPassword(password); }
         UserService.updateUser(user);
         request.setAttribute("user", user);
+        request.setAttribute("successMessage", "Profil utilisateur modifié avec succès");
     }
 
 
@@ -166,6 +167,7 @@ public class UserController extends HttpServlet {
         // delete professor
         Professor professor = ProfessorService.getProfessorByUserId(userId);
         if (professor != null ) { ProfessorService.deleteProfessor(professor.getId()); }
+        request.setAttribute("successMessage", "Utilisateur supprimé avec succès");
     }
 
 
@@ -205,5 +207,15 @@ public class UserController extends HttpServlet {
     private void viewUsers(HttpServletRequest request) {
         List<User> users = UserService.getAllUsers();
         request.setAttribute("users", users);
+    }
+
+    private void setUpdateFormParam(HttpServletRequest req) {
+        int userId = TypeUtil.getIntFromString(req.getParameter("user-id"));
+        // verify parameters
+        if (userId == -1 || UserService.getUserById(userId) == null) {
+            errorMessage = "Utilisateur introuvable.";
+            return;
+        }
+        req.setAttribute("user", UserService.getUserById(userId));
     }
 }

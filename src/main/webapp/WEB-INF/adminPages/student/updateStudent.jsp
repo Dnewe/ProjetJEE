@@ -11,9 +11,12 @@
 <jsp:include page="/WEB-INF/util/header.jsp" />
 <div class="container mt-5">
     <h2>Modifier Étudiant</h2>
+    <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
+
     <form action="${pageContext.request.contextPath}/student?action=update" method="post">
         <!-- ID étudiant caché -->
         <input type="hidden" name="student-id" value="${student.id}">
+        <input type="hidden" name="result-page" value="student?action=details&student-id=${student.id}">
 
         <!-- Nom -->
         <div class="mb-3">
@@ -36,7 +39,7 @@
         <!-- Date de naissance -->
         <div class="mb-3">
             <label for="date-of-birth" class="form-label">Date de naissance</label>
-            <input type="date" class="form-control" id="date-of-birth" name="date-of-birth" value="${student.dateOfBirth}" required>
+            <input type="date" class="form-control" id="date-of-birth" name="date-of-birth" value="${student.dateOfBirth}">
         </div>
 
         <!-- Boutons -->

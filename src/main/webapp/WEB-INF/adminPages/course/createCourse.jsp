@@ -11,6 +11,8 @@
 <jsp:include page="/WEB-INF/util/header.jsp" />
 <div class="container mt-5">
     <h2>Créer Cours</h2>
+    <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
+
     <form action="${pageContext.request.contextPath}/course?action=create" method="post">
         <!-- ID professeur caché -->
         <input type="hidden" name="result-page" value="course?action=list">

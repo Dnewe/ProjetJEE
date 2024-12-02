@@ -31,9 +31,9 @@ import java.util.stream.Collectors;
 @WebServlet(name = "StudentController", urlPatterns = "/student")
 public class StudentController extends HttpServlet {
 
-    String resultPage;
-    String errorPage;
-    String errorMessage;
+    private String resultPage;
+    private String errorPage = ServletUtil.defaultErrorPage;
+    private String errorMessage;
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -44,21 +44,21 @@ public class StudentController extends HttpServlet {
             /*case "create":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "student?action=list";
-                errorPage = "error.jsp";
+                errorPage = "student?action=list";
                 createStudent(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;*/
             case "update":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
-                resultPage = "WEB-INF/adminPages/students/studentDetails.jsp";
-                errorPage = "error.jsp";
+                resultPage = ServletUtil.getResultPage(request, "WEB-INF/adminPages/students/studentDetails.jsp");
+                errorPage = "student?action=list";
                 updateStudent(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "delete":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "student?action=list";
-                errorPage = "error.jsp";
+                errorPage = "student?action=list";
                 deleteStudent(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
@@ -80,36 +80,27 @@ public class StudentController extends HttpServlet {
         	case "updateForm":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
         	    resultPage = "WEB-INF/adminPages/student/updateStudent.jsp";
-        	    errorPage = "error.jsp";
+                errorPage = "student?action=list";
         	    viewStudent(request); // Charge les informations de l'étudiant
         	    ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
         	    break;
             case "details":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/student/studentDetails.jsp";
-                errorPage = "error.jsp";
+                errorPage = "student?action=list";
                 viewStudent(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "list":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/student/students.jsp";
-                errorPage = "error.jsp";
                 viewStudents(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "courseList":
                 if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/professorPages/students.jsp";
-                errorPage = "error.jsp";
                 viewCourseStudents(request);
-                ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
-                break;
-            case "viewEnrolledCourses":
-                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
-                resultPage = "WEB-INF/adminPages/student/viewEnrolledCourses.jsp";
-                errorPage = "error.jsp";
-                viewEnrolledCourses(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             default:
@@ -117,7 +108,7 @@ public class StudentController extends HttpServlet {
         }
     }
 
-    private void createStudent(HttpServletRequest request) {
+    /*private void createStudent(HttpServletRequest request) {
         // get parameters
         String lastName = request.getParameter("last-name");
         String firstName = request.getParameter("first-name");
@@ -164,8 +155,7 @@ public class StudentController extends HttpServlet {
         student.setUser(UserService.getUserById(userId));
         // add student
         StudentService.addStudent(student);
-        notifyStudentEnrollmentChange(student, "Inscription ajoutée");
-    }
+    }*/
     
     private void viewEnrolledCourses(HttpServletRequest request) {
         int studentId = (int) request.getSession().getAttribute("student-id");
@@ -196,6 +186,7 @@ public class StudentController extends HttpServlet {
         // apply changes
         StudentService.updateStudent(student);
         request.setAttribute("student", student);
+        request.setAttribute("successMessage", "Profil étudiant modifié avec succès");
     }
 
     private  void deleteStudent(HttpServletRequest request) {
@@ -208,8 +199,7 @@ public class StudentController extends HttpServlet {
         }
         // delete student
         StudentService.deleteStudent(studentId);
-        Student student = StudentService.getStudentById(studentId);
-        notifyStudentEnrollmentChange(student, "Inscription supprimée");
+        request.setAttribute("successMessage", "Profil étudiant supprimé avec succès");
     }
 
     private void viewStudent(HttpServletRequest request) {
@@ -264,7 +254,6 @@ public class StudentController extends HttpServlet {
         }
     }
 
-    
     private void viewCourseStudents(HttpServletRequest request) {
         // get parameters
         String search = request.getParameter("search");
@@ -287,34 +276,6 @@ public class StudentController extends HttpServlet {
         request.setAttribute("averageByStudent", averageByStudent);
         request.setAttribute("course", CourseService.getCourseById(courseId));
     }
-    
-    /*public void generateStudentGradesPdf(HttpServletRequest request, HttpServletResponse response) {
-        // get parameters
-        int studentId = TypeUtil.getIntFromString(request.getParameter("student-id"));
-        // verify parameters
-        if (studentId == -1 || StudentService.getStudentById(studentId) == null) {
-            errorMessage = "Etudiant introuvable.";
-            return;
-        }
-        // get grades
-        Student student = StudentService.getStudentById(studentId);
-        Map<Course, List<Result>> resultsByCourse = ResultService.getResultsByStudentIdGroupedByCourse(studentId);
-        Map<Course, Double> averageByCourse = resultsByCourse.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> calculateAverage(entry.getValue())
-                ));
-        // Configuration de la réponse HTTP pour le téléchargement
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename=\"releve_notes_" + studentId + ".pdf\"");
-
-        // Générer le PDF
-        try {
-            TranscriptService.download(response, student, resultsByCourse, averageByCourse);
-        } catch (Exception e) {
-            errorMessage = "Création du pdf impossible.";
-        }
-    }*/
     
     private void notifyStudentGradePublication(Student student, String courseName, double grade) {
         String subject = "Nouvelle note publiée";

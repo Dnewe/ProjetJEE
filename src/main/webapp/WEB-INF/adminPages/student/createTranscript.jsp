@@ -13,6 +13,8 @@
 <jsp:include page="/WEB-INF/util/header.jsp" />
 <div class="container mt-5">
   <h2>Créer Relevé de note pour ${student.firstName} ${student.lastName}.</h2>
+  <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
+
   <form action="${pageContext.request.contextPath}/transcript" method="post">
     <!-- param caché -->
     <input type="hidden" name="student-id" value="${student.id}">

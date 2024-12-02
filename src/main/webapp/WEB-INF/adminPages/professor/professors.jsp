@@ -10,6 +10,7 @@
 <jsp:include page="/WEB-INF/util/header.jsp" />
 <div class="container mt-5">
     <h2 class="mb-4">Gestion des Professeurs</h2>
+    <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
 
     <table class="table table-striped">
         <thead>

@@ -23,6 +23,7 @@
 
 <div class="container">
     <h2 class="mb-4">Liste des Cours inscrits</h2>
+    <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
 
     <table class="table table-striped">
         <thead>

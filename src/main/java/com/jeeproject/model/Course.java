@@ -16,7 +16,7 @@ public class Course {
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "professor_id", nullable = false)
+    @JoinColumn(name = "professor_id")
     private Professor professor;
 
     // Getters and Setters

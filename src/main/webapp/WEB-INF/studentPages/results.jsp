@@ -23,6 +23,7 @@
 
 <div class="container">
     <h2 class="mb-4">Liste des Résultats</h2>
+    <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
 
     <c:forEach var="entry" items="${resultsByCourse}">
         <h4>${entry.key.name}</h4>
@@ -59,9 +60,6 @@
     <c:if test="${empty resultsByCourse}">
         <p class="text-center">Aucun cours trouvé.</p>
     </c:if>
-</div>
-<div>
-<a href="student?action=downloadPdf&studentId=${sessionScope.loggedStudent.id} "class="btn btn-primary">Télécharger le relevé de notes (PDF)</a>
 </div>
 
 

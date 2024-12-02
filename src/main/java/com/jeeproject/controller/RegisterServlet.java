@@ -21,14 +21,15 @@ import java.util.Date;
 @WebServlet(name = "RegisterServlet", urlPatterns = "/register")
 public class RegisterServlet extends HttpServlet {
 
-    String resultPage;
-    String errorPage;
-    String errorMessage;
+    private String resultPage;
+    private String errorPage = ServletUtil.defaultErrorPage;
+    private String errorMessage;
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        errorMessage = null;
         resultPage = "user?action=list";
-        errorPage = "error.jsp";
+        errorPage = "user?action=createForm";
         register(request);
         ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
     }
@@ -75,6 +76,7 @@ public class RegisterServlet extends HttpServlet {
                 ProfessorService.addProfessor(createProfessor(user, professorFirstName, professorLastName, professorContact));
                 break;
         }
+        request.setAttribute("successMessage", "Utilisateur créé avec succès");
     }
 
 
@@ -117,6 +119,10 @@ public class RegisterServlet extends HttpServlet {
         }
         if (!ServletUtil.validString(password)) {
             errorMessage = "Mot de passe invalide";
+            return false;
+        }
+        if (password.length()<6) {
+            errorMessage = "Le mot de passe doit faire au moins 6 caractères";
             return false;
         }
         return true;

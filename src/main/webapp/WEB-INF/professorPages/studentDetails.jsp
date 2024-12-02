@@ -17,6 +17,7 @@
 
 <div class="container mt-4">
     <h2>Notes de ${student.firstName} ${student.lastName} pour le cours ${course.name}</h2>
+    <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
 
     <!-- Liste des étudiants inscrits avec moyenne -->
     <table class="table table-striped table-bordered">

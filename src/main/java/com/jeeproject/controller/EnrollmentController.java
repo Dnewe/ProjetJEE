@@ -19,7 +19,7 @@ import java.util.Date;
 public class EnrollmentController extends HttpServlet {
 
     private String resultPage;
-    private String errorPage = "error.jsp";
+    private String errorPage = ServletUtil.defaultErrorPage;
     private String errorMessage;
 
     @Override
@@ -36,16 +36,18 @@ public class EnrollmentController extends HttpServlet {
             case "create":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "enrollment?action=list");
+                errorPage = ServletUtil.getResultPage(request, ServletUtil.defaultErrorPage);
                 createEnrollment(request);
                 break;
-            case "update":
+            /*case "update":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "enrollment?action=list";
                 updateEnrollment(request);
-                break;
+                break;*/
             case "delete":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
-                resultPage = ServletUtil.getResultPage(request, resultPage = "enrollment?action=list");
+                resultPage = ServletUtil.getResultPage(request, "enrollment?action=list");
+                errorPage = ServletUtil.getResultPage(request, ServletUtil.defaultErrorPage);
                 deleteEnrollment(request);
                 break;
             default:
@@ -112,9 +114,10 @@ public class EnrollmentController extends HttpServlet {
         enrollment.setStudent(StudentService.getStudentById(studentId));
 
         EnrollmentService.addEnrollment(enrollment);
+        request.setAttribute("successMessage", "Inscription créée avec succès");
     }
 
-    private void updateEnrollment(HttpServletRequest request) {
+    /*private void updateEnrollment(HttpServletRequest request) {
         int enrollmentId = TypeUtil.getIntFromString(request.getParameter("enrollment-id"));
         Date enrollmentDate = TypeUtil.getDateFromString(request.getParameter("enrollment-date"));
 
@@ -129,7 +132,8 @@ public class EnrollmentController extends HttpServlet {
         }
 
         EnrollmentService.updateEnrollment(enrollment);
-    }
+        request.setAttribute("successMessage", "Inscription modifiée avec succès");
+    }*/
 
     private void deleteEnrollment(HttpServletRequest request) {
         int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
@@ -150,33 +154,6 @@ public class EnrollmentController extends HttpServlet {
         }
         // delete enrollment
         EnrollmentService.deleteEnrollment(enrollment.getId());
+        request.setAttribute("successMessage", "Inscription supprimée avec succès");
     }
-
-    private void deleteEnrollment_(HttpServletRequest request) {
-        int enrollmentId = TypeUtil.getIntFromString(request.getParameter("enrollment-id"));
-
-        if (enrollmentId == -1 || EnrollmentService.getEnrollmentById(enrollmentId) == null) {
-            errorMessage = "Inscription introuvable.";
-            return;
-        }
-
-        EnrollmentService.deleteEnrollment(enrollmentId);
-    }
-
-    /*private void listEnrollments(HttpServletRequest request) {
-        request.setAttribute("enrollments", EnrollmentService.getAllEnrollments());
-    }/*
-
-    /*private void viewStudentEnrollments(HttpServletRequest request) {
-        int studentId = TypeUtil.getIntFromString(request.getParameter("student-id"));
-
-        if (studentId == -1 || StudentService.getStudentById(studentId) == null) {
-            errorMessage = "étudiant introuvable.";
-            return;
-        }
-
-        request.setAttribute("student", StudentService.getStudentById(studentId));
-        request.setAttribute("enrolled-courses", EnrollmentService.getCoursesByStudent(studentId));
-        request.setAttribute("available-courses", CourseService.getCoursesNotEnrolledByStudent(studentId));
-    }*/
 }

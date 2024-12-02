@@ -11,6 +11,8 @@
 <jsp:include page="/WEB-INF/util/header.jsp" />
 <div class="container mt-5">
     <h2>Modifier Utilisateur</h2>
+    <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
+
     <form action="${pageContext.request.contextPath}/user?action=update" method="post">
         <!-- ID utilisateur caché -->
         <input type="hidden" name="user-id" value="${user.id}">
@@ -25,7 +27,7 @@
         <!-- MDP -->
         <div class="mb-3">
             <label for="password" class="form-label">Nouveau mot de passe</label>
-            <input type="password" class="form-control" id="password" name="password" required>
+            <input type="password" class="form-control" id="password" name="password">
         </div>
 
         <!-- Boutons -->

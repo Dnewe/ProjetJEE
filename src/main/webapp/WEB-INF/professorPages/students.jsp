@@ -16,6 +16,7 @@
 
 <div class="container mt-4">
     <h2>Liste des étudiants du Cours ${course.name}</h2>
+    <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
 
     <form class="d-flex" action="${pageContext.request.contextPath}/student" method="get">
         <input type="hidden" name="action" value="courseList">

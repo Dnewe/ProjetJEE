@@ -13,18 +13,7 @@
 <jsp:include page="/WEB-INF/util/header.jsp" />
 <div class="container mt-5">
     <h2 class="mb-4">Gestion des Utilisateurs</h2>
-
-    <!-- Messages d'erreur ou de succès -->
-    <c:if test="${not empty errorMessage}">
-        <div class="alert alert-danger">
-            ${errorMessage}
-        </div>
-    </c:if>
-    <c:if test="${not empty successMessage}">
-        <div class="alert alert-success">
-            ${successMessage}
-        </div>
-    </c:if>
+    <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
 
     <!-- Tableau des utilisateurs -->
     <table class="table table-striped">

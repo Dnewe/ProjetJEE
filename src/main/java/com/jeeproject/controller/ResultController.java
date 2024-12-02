@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
 @WebServlet(name = "ResultController", urlPatterns = "/result")
 public class ResultController extends HttpServlet {
 
-    String resultPage;
-    String errorPage = "/WEB-INF/commonPages/error.jsp";;
-    String errorMessage = "NO MESSAGE";
+    private String resultPage;
+    private String errorPage = ServletUtil.defaultErrorPage;
+    private String errorMessage = "NO MESSAGE";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -41,28 +41,28 @@ public class ResultController extends HttpServlet {
             case "create":
                 if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "course?action=professorList&professor-id=" + ((Professor)request.getSession().getAttribute("loggedProfessor")).getId());
-                errorPage = "/WEB-INF/commonPages/error.jsp";
+                errorPage = ServletUtil.getResultPage(request, ServletUtil.defaultErrorPage);
                 createResult(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "createMultiple":
                 if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "course?action=professorList&professor-id=" + ((Professor)request.getSession().getAttribute("loggedProfessor")).getId());
-                errorPage = "/WEB-INF/commonPages/error.jsp";
+                errorPage = ServletUtil.getResultPage(request, ServletUtil.defaultErrorPage);
                 createResults(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "update":
                 if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
-                resultPage = ServletUtil.getResultPage(request, "/WEB-INF/views/resultDetails.jsp");
-                errorPage = "/WEB-INF/commonPages/error.jsp";
+                resultPage = ServletUtil.getResultPage(request, "course?action=professorList&professor-id=" + ((Professor)request.getSession().getAttribute("loggedProfessor")).getId());
+                errorPage = ServletUtil.getResultPage(request, ServletUtil.defaultErrorPage);
                 updateResult(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "delete":
                 if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "course?action=professorList&professor-id=" + ((Professor)request.getSession().getAttribute("loggedProfessor")).getId());
-                errorPage = "error.jsp";
+                errorPage = ServletUtil.getResultPage(request, ServletUtil.defaultErrorPage);
                 deleteResult(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
@@ -85,14 +85,12 @@ public class ResultController extends HttpServlet {
             case "studentDetails":
                 if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "/WEB-INF/professorPages/studentDetails.jsp");
-                errorPage = "error.jsp";
                 viewStudentCourseResults(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "studentList":
                 if (ServletUtil.notStudent(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/studentPages/results.jsp";
-                errorPage = "error.jsp";
                 viewStudentResults(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
@@ -154,6 +152,7 @@ public class ResultController extends HttpServlet {
         // add result
         ResultService.addResult(result);
         //notifyStudentGradePublication(StudentService.getStudentById(studentId), CourseService.getCourseById(courseId));
+        request.setAttribute("successMessage", "Note enregistée avec succès");
     }
 
     private void createResults(HttpServletRequest request) {
@@ -208,6 +207,7 @@ public class ResultController extends HttpServlet {
                 }
             }
         }
+        request.setAttribute("successMessage", "Notes enregistées avec succès");
     }
 
 
@@ -237,6 +237,7 @@ public class ResultController extends HttpServlet {
         if (entryDate!=null) { result.setEntryDate(entryDate);}
         ResultService.updateResult(result);
         request.setAttribute("result", result);
+        request.setAttribute("successMessage", "Note modifiée avec succès");
     }
 
     private  void deleteResult(HttpServletRequest request) {
@@ -249,6 +250,7 @@ public class ResultController extends HttpServlet {
         }
         // delete result
         ResultService.deleteResult(resultId);
+        request.setAttribute("successMessage", "Note supprimée avec succès");
     }
 
     private void viewStudentResults(HttpServletRequest request) {

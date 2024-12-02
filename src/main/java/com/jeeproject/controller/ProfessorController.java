@@ -24,7 +24,7 @@ import java.util.Map;
 public class ProfessorController extends HttpServlet {
 
     private String resultPage;
-    private String errorPage;
+    private String errorPage = ServletUtil.defaultErrorPage;
     private String errorMessage;
 
     @Override
@@ -39,33 +39,33 @@ public class ProfessorController extends HttpServlet {
 
         errorMessage = null;
         switch (action) {
-            case "create":
+            /*case "create":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "professor?action=list";
                 errorPage = "error.jsp";
                 createProfessor(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
-                break;
+                break;*/
             case "update":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "professor?action=list");
-                errorPage = "error.jsp";
+                errorPage = "professor?action=list";
                 updateProfessor(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "delete":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "professor?action=list";
-                errorPage = "error.jsp";
+                errorPage = "professor?action=list";
                 deleteProfessor(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
-            case "saveGrades":
+            /*case "saveGrades":
                 resultPage = "professor?action=submitGrades";
                 errorPage = "error.jsp";
                 saveGrades(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
-                break;
+                break;*/
             default:
                 System.out.println("ACTION NOT FOUND PROFESSOR (post) : " + action);
                 ServletUtil.invalidAction(request, response);
@@ -87,14 +87,13 @@ public class ProfessorController extends HttpServlet {
             case "details":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/professor/professorDetails.jsp";
-                errorPage = "error.jsp";
+                errorPage = "professor?action=list";
                 viewProfessor(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "list":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/professor/professors.jsp";
-                errorPage = "error.jsp";
                 viewProfessors(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
@@ -103,19 +102,19 @@ public class ProfessorController extends HttpServlet {
                 resultPage = "WEB-INF/adminPages/professor/updateProfessor.jsp";
                 request.setAttribute("professor", ProfessorService.getProfessorById(TypeUtil.getIntFromString(request.getParameter("professor-id"))));
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
-            case "submitGrades":
+            /*case "submitGrades":
                 resultPage = "WEB-INF/adminPages/professor/gradeSubmission.jsp";
                 errorPage = "error.jsp";
                 submitGrades(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
-                break;
+                break;*/
             default:
                 System.out.println("ACTION NOT FOUND PROFESSOR (get)");
                 ServletUtil.invalidAction(request, response);
         }
     }
 
-    private void createProfessor(HttpServletRequest request) {
+    /*private void createProfessor(HttpServletRequest request) {
         String lastName = request.getParameter("last-name");
         String firstName = request.getParameter("first-name");
         String contact = request.getParameter("contact");
@@ -155,7 +154,8 @@ public class ProfessorController extends HttpServlet {
         professor.setUser(user);
 
         ProfessorService.addProfessor(professor);
-    }
+        request.setAttribute("successMessage", "Professeur créé avec succès");
+    }*/
 
     private void updateProfessor(HttpServletRequest request) {
         String lastName = request.getParameter("last-name");
@@ -176,6 +176,7 @@ public class ProfessorController extends HttpServlet {
         if (ServletUtil.validString(contact)) professor.setContact(contact);
 
         ProfessorService.updateProfessor(professor);
+        request.setAttribute("successMessage", "Professeur modifié avec succès");
     }
 
     private void deleteProfessor(HttpServletRequest request) {
@@ -187,6 +188,7 @@ public class ProfessorController extends HttpServlet {
         }
 
         ProfessorService.deleteProfessor(professorId);
+        request.setAttribute("successMessage", "Professeur supprimé avec succès");
     }
 
     private void viewProfessor(HttpServletRequest request) {

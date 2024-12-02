@@ -15,6 +15,7 @@
 <jsp:include page="/WEB-INF/util/header.jsp" />
     <div class="container">
         <h2 class="mt-4">Détails de l'Étudiant</h2>
+        <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
 
         <div class="card mt-4">
             <div class="card-header">

@@ -21,7 +21,7 @@ import java.util.List;
 public class CourseController extends HttpServlet {
 
     String resultPage;
-    String errorPage;
+    String errorPage = ServletUtil.defaultErrorPage;
     String errorMessage;
 
     @Override
@@ -39,35 +39,35 @@ public class CourseController extends HttpServlet {
             case "create":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "course?action=list");
-                errorPage = "error.jsp";
+                errorPage = "course?action=createForm";
                 createCourse(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "update":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "course?action=list");
-                errorPage = "error.jsp";
+                errorPage = "course?action=list";
                 updateCourse(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "delete":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "course?action=list");
-                errorPage = "error.jsp";
+                errorPage = "course?action=list";
                 deleteCourse(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "assignProfessor":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "course?action=list");
-                errorPage = "error.jsp";
+                errorPage = "course?action=list";
                 assignProfessorToCourse(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "removeProfessor":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "course?action=list");
-                errorPage = "error.jsp";
+                errorPage = "course?action=list";
                 removeProfessorFromCourse(request);
                 ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
                 break;
@@ -90,28 +90,25 @@ public class CourseController extends HttpServlet {
             case "details":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/adminPages/course/courseDetails.jsp";
-                errorPage = "error.jsp";
+                errorPage = "course?action=list";
                 viewCourse(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "list":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/adminPages/course/courses.jsp";
-                errorPage = "error.jsp";
                 viewCourses(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "studentList":
                 if (ServletUtil.notStudent(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/studentPages/courses.jsp";
-                errorPage = "error.jsp";
                 viewStudentCourses(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
             case "professorList":
                 if (ServletUtil.notProfessor(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/professorPages/courses.jsp";
-                errorPage = "error.jsp";
                 viewProfessorCourses(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
                 break;
@@ -122,7 +119,8 @@ public class CourseController extends HttpServlet {
             case "updateForm":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "WEB-INF/adminPages/course/updateCourse.jsp";
-                request.setAttribute("course", CourseService.getCourseById(TypeUtil.getIntFromString(request.getParameter("course-id"))));
+                errorPage = "course?action=list";
+                setUpdateFormParam(request);
                 ServletUtil.forward(request, response, resultPage, errorPage, errorMessage);
             default:
                 ServletUtil.invalidAction(request, response);
@@ -150,10 +148,7 @@ public class CourseController extends HttpServlet {
         // Assigner le professeur au cours
         course.setProfessor(professor);
         CourseService.updateCourse(course);
-        
-        // Recharger les informations du cours avec le professeur assigné
-        //request.setAttribute("course", course);
-        //request.setAttribute("professors", ProfessorService.getAllProfessors()); // Charger la liste des professeurs
+        request.setAttribute("successMessage", "Professeur assigné au cours avec succès");
     }
 
     private void removeProfessorFromCourse(HttpServletRequest request) {
@@ -166,6 +161,7 @@ public class CourseController extends HttpServlet {
         }
         course.setProfessor(null);
         CourseService.updateCourse(course);
+        request.setAttribute("successMessage", "Professeur retiré du cours avec succès");
     }
 
     private void createCourse(HttpServletRequest request) {
@@ -193,6 +189,7 @@ public class CourseController extends HttpServlet {
         if (professorId != -1) { course.setProfessor(ProfessorService.getProfessorById(professorId));} else { course.setProfessor(null); }
         // add course
         CourseService.addCourse(course);
+        request.setAttribute("successMessage", "Cours créé avec succès");
     }
 
 
@@ -212,6 +209,7 @@ public class CourseController extends HttpServlet {
         if (ServletUtil.validString(description)) { course.setDescription(description); }
         CourseService.updateCourse(course);
         request.setAttribute("course", course);
+        request.setAttribute("successMessage", "Cours modifié avec succès");
     }
 
 
@@ -225,6 +223,7 @@ public class CourseController extends HttpServlet {
         }
         // delete course
         CourseService.deleteCourse(courseId);
+        request.setAttribute("successMessage", "Cours supprimé avec succès");
     }
 
     private void viewCourse(HttpServletRequest request) {
@@ -280,5 +279,14 @@ public class CourseController extends HttpServlet {
         // get courses
         List<Course> courses = CourseService.getCoursesByProfessorId(professorId);
         request.setAttribute("courses", courses);
+    }
+
+    private void setUpdateFormParam(HttpServletRequest req) {
+        int courseId = TypeUtil.getIntFromString(req.getParameter("course-id"));
+        // verify parameters
+        if (courseId == -1 || CourseService.getCourseById(courseId) == null) {
+            errorMessage = "Cours introuvable.";
+        }
+        req.setAttribute("course", CourseService.getCourseById(courseId));
     }
 }

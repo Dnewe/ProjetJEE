@@ -14,6 +14,7 @@
 <jsp:include page="/WEB-INF/util/header.jsp" />
 <div class="container mt-5">
     <h2 class="mb-4">Gestion des Étudiants</h2>
+    <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
 
     <form class="d-flex" action="${pageContext.request.contextPath}/student" method="get">
         <input type="hidden" name="action" value="list">

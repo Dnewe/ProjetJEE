@@ -12,6 +12,8 @@
 <jsp:include page="/WEB-INF/util/header.jsp" />
 <div class="container mt-5">
     <h2>Modifier Professeur</h2>
+    <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
+
     <form action="${pageContext.request.contextPath}/professor?action=update" method="post">
         <!-- ID professeur caché -->
         <input type="hidden" name="professor-id" value="${professor.id}">
