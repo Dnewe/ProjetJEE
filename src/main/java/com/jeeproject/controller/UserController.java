@@ -36,13 +36,6 @@ public class UserController extends HttpServlet {
 
         errorMessage = null;
         switch (action) {
-            /*case "create":
-                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
-                resultPage = "user?action=list";
-                errorPage = "error.jsp";
-                createUser(request);
-                ServletUtil.redirect(request, response, resultPage, errorPage, errorMessage);
-                break;*/
             case "update":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = "/WEB-INF/adminPages/user/userDetails.jsp";

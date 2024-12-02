@@ -168,7 +168,6 @@ public class CourseController extends HttpServlet {
         // get parameters
         String name = request.getParameter("name");
         String description = request.getParameter("description");
-        int professorId = TypeUtil.getIntFromString(request.getParameter("professor-id"));
         // verify parameters
         if (!ServletUtil.validString(name)) {
             errorMessage = "Le nom du cours n'est pas valide";
@@ -178,15 +177,11 @@ public class CourseController extends HttpServlet {
             errorMessage = "La description du cours n'est pas valide";
             return;
         }
-        if (professorId != -1 && ProfessorService.getProfessorById(professorId) == null) {
-            errorMessage = "Le professeur est introuvable.";
-            return;
-        }
         // create course
         Course course = new Course();
         course.setName(name);
         course.setDescription(description);
-        if (professorId != -1) { course.setProfessor(ProfessorService.getProfessorById(professorId));} else { course.setProfessor(null); }
+        course.setProfessor(null);
         // add course
         CourseService.addCourse(course);
         request.setAttribute("successMessage", "Cours créé avec succès");

@@ -41,7 +41,7 @@ public class LoginServlet extends HttpServlet {
         } else {
             errorPage = "login.jsp";
             errorMessage = "Email et/ou mot de passe invalide(s).";
-            ServletUtil.forward(request, response, null, errorPage, errorMessage);
+            ServletUtil.redirect(request, response, null, errorPage, errorMessage);
         }
     }
 }

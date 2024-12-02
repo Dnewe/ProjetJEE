@@ -13,16 +13,8 @@ public class EnrollmentService {
         enrollmentDAO.save(enrollment);
     }
 
-    public static Enrollment getEnrollmentById(int id) {
-        return enrollmentDAO.findById(id);
-    }
-
     public static Enrollment getEnrollmentByStudentIdAndCourseId(int studentId, int courseId) {
         return enrollmentDAO.findByStudentIdAndCourseId(studentId, courseId);
-    }
-
-    public static void updateEnrollment(Enrollment enrollment) {
-        enrollmentDAO.update(enrollment);
     }
 
     public static void deleteEnrollment(int id) {

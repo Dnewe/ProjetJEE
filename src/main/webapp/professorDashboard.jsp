@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <jsp:include page="WEB-INF/util/header.jsp">
-    <jsp:param name="pageTitle" value="Tableau de Bord Etudiant" />
+    <jsp:param name="pageTitle" value="Tableau de Bord Professeur" />
 </jsp:include>
 
 <div class="container admin-dashboard">
