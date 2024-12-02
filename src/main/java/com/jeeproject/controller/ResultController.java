@@ -153,6 +153,7 @@ public class ResultController extends HttpServlet {
         ResultService.addResult(result);
         //notifyStudentGradePublication(StudentService.getStudentById(studentId), CourseService.getCourseById(courseId));
         request.setAttribute("successMessage", "Note enregistée avec succès");
+        notifyStudentGradePublication(StudentService.getStudentById(studentId), CourseService.getCourseById(courseId));
     }
 
     private void createResults(HttpServletRequest request) {
@@ -203,7 +204,7 @@ public class ResultController extends HttpServlet {
                     result.setEntryDate(entryDate);
                     // add result
                     ResultService.addResult(result);
-                    //notifyStudentGradePublication(StudentService.getStudentById(studentId), CourseService.getCourseById(courseId));
+                    notifyStudentGradePublication(StudentService.getStudentById(studentId), CourseService.getCourseById(courseId));
                 }
             }
         }

@@ -49,10 +49,6 @@
                 <label for="student-date-of-birth" class="form-label">Date de naissance</label>
                 <input type="date" class="form-control" id="student-date-of-birth" name="student-date-of-birth">
             </div>
-            <div class="mb-3">
-                <label for="student-contact" class="form-label">Contact</label>
-                <input type="text" class="form-control" id="student-contact" name="student-contact">
-            </div>
         </div>
 
         <div id="professorFields" style="display: ${selectedRole == 'professor' ? 'block' : 'none'};">
@@ -63,10 +59,6 @@
             <div class="mb-3">
                 <label for="professor-first-name" class="form-label">Prénom</label>
                 <input type="text" class="form-control" id="professor-first-name" name="professor-first-name">
-            </div>
-            <div class="mb-3">
-                <label for="professor-contact" class="form-label">Contact</label>
-                <input type="text" class="form-control" id="professor-contact" name="professor-contact">
             </div>
         </div>
 

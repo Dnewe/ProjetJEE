@@ -1,11 +1,14 @@
 package com.jeeproject.controller;
 
 import com.jeeproject.model.Enrollment;
+import com.jeeproject.model.Student;
 import com.jeeproject.service.CourseService;
 import com.jeeproject.service.EnrollmentService;
 import com.jeeproject.service.StudentService;
+import com.jeeproject.util.EmailUtil;
 import com.jeeproject.util.ServletUtil;
 import com.jeeproject.util.TypeUtil;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -39,11 +42,6 @@ public class EnrollmentController extends HttpServlet {
                 errorPage = ServletUtil.getResultPage(request, ServletUtil.defaultErrorPage);
                 createEnrollment(request);
                 break;
-            /*case "update":
-                if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
-                resultPage = "enrollment?action=list";
-                updateEnrollment(request);
-                break;*/
             case "delete":
                 if (ServletUtil.notAdmin(request)) { ServletUtil.unauthorized(request,response); return;}
                 resultPage = ServletUtil.getResultPage(request, "enrollment?action=list");
@@ -115,25 +113,8 @@ public class EnrollmentController extends HttpServlet {
 
         EnrollmentService.addEnrollment(enrollment);
         request.setAttribute("successMessage", "Inscription créée avec succès");
+        notifyStudentEnrollmentChange(StudentService.getStudentById(studentId), "Inscription au cours " + CourseService.getCourseById(courseId).getName());
     }
-
-    /*private void updateEnrollment(HttpServletRequest request) {
-        int enrollmentId = TypeUtil.getIntFromString(request.getParameter("enrollment-id"));
-        Date enrollmentDate = TypeUtil.getDateFromString(request.getParameter("enrollment-date"));
-
-        Enrollment enrollment = EnrollmentService.getEnrollmentById(enrollmentId);
-        if (enrollment == null) {
-            errorMessage = "Inscription introuvable.";
-            return;
-        }
-
-        if (enrollmentDate != null) {
-            enrollment.setEnrollmentDate(enrollmentDate);
-        }
-
-        EnrollmentService.updateEnrollment(enrollment);
-        request.setAttribute("successMessage", "Inscription modifiée avec succès");
-    }*/
 
     private void deleteEnrollment(HttpServletRequest request) {
         int courseId = TypeUtil.getIntFromString(request.getParameter("course-id"));
@@ -155,5 +136,21 @@ public class EnrollmentController extends HttpServlet {
         // delete enrollment
         EnrollmentService.deleteEnrollment(enrollment.getId());
         request.setAttribute("successMessage", "Inscription supprimée avec succès");
+        notifyStudentEnrollmentChange(StudentService.getStudentById(studentId), "Désinscription du cours " + CourseService.getCourseById(courseId).getName());
+    }
+
+    private void notifyStudentEnrollmentChange(Student student, String changeType) {
+        String subject = "Changement dans votre inscription";
+        String message = String.format(
+                "Bonjour %s,\n\nNous vous informons qu'un changement a été effectué dans votre inscription : %s.\n\nCordialement,\nL'équipe de gestion",
+                student.getFirstName(),
+                changeType
+        );
+
+        try {
+            EmailUtil.sendEmail(student.getUser().getEmail(), subject, message);
+        } catch (MessagingException e) {
+            errorMessage = "échec de l'envoi de l'email à l'étudiant : " + student.getId();
+        }
     }
 }

@@ -102,57 +102,6 @@ public class StudentController extends HttpServlet {
         }
     }
 
-    /*private void createStudent(HttpServletRequest request) {
-        // get parameters
-        String lastName = request.getParameter("last-name");
-        String firstName = request.getParameter("first-name");
-        Date dateOfBirth = TypeUtil.getDateFromString(request.getParameter("date-of-birth"));
-        int userId = TypeUtil.getIntFromString(request.getParameter("user-id"));
-        // verify parameters
-        if (!ServletUtil.validString(lastName)) {
-            errorMessage = "Nom invalide.";
-            return;
-        }
-        if (!ServletUtil.validString(firstName)) {
-            errorMessage = "Prénom invalide.";
-            return;
-        }
-        if (dateOfBirth == null) {
-            errorMessage = "Date invalide. Utilisez le format yyyy-MM-dd.";
-            return;
-        }
-        if (userId == -1 || UserService.getUserById(userId) == null) {
-            errorMessage = "Utilisateur introuvable";
-            return;
-        }
-        if (StudentService.getStudentByUserId(userId) != null || ProfessorService.getProfessorByUserId(userId) != null) {
-            errorMessage = "Utilisateur déjà associé à un étudiant ou professeur.";
-            return;
-        }
-        // verify user role
-        User user = UserService.getUserById(userId);
-        if (!user.getRole().equals("student")) {
-            errorMessage = "Le role de l'utilisateur ne correspond pas.";
-            return;
-        }
-        // create student
-        Student student = new Student();
-        student.setLastName(lastName);
-        student.setFirstName(firstName);
-        student.setDateOfBirth(dateOfBirth);
-        student.setUser(UserService.getUserById(userId));
-        // add student
-        StudentService.addStudent(student);
-    }*/
-    
-    private void viewEnrolledCourses(HttpServletRequest request) {
-        int studentId = (int) request.getSession().getAttribute("student-id");
-
-        // Fetch enrolled courses from the service
-        List<Course> enrolledCourses = CourseService.getCoursesByStudentId(studentId);
-        request.setAttribute("enrolled-courses", enrolledCourses);
-    }
-
     private void updateStudent(HttpServletRequest request) {
         // get parameters
         String lastName = request.getParameter("last-name");
@@ -228,7 +177,7 @@ public class StudentController extends HttpServlet {
     private void notifyStudentEnrollmentChange(Student student, String changeType) {
         String subject = "Changement dans votre inscription";
         String message = String.format(
-            "Bonjour %s,\n\nNous vous informons qu'un changement a �t� effectu� dans votre inscription : %s.\n\nCordialement,\nL'�quipe de gestion",
+            "Bonjour %s,\n\nNous vous informons qu'un changement a été effectué dans votre inscription : %s.\n\nCordialement,\nL'équipe de gestion",
             student.getFirstName(),
             changeType
         );

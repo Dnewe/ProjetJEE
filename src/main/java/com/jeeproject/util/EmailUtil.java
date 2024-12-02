@@ -9,8 +9,8 @@ import java.util.regex.Pattern;
 public class EmailUtil {
     private static final String SMTP_HOST = "smtp.gmail.com";
     private static final int SMTP_PORT = 587;
-    private static final String SMTP_USERNAME = "ewen.misc@gmail.com";
-    private static final String SMTP_PASSWORD = "TEMP";
+    private static final String SMTP_USERNAME = "ewen.dump@gmail.com";
+    private static final String SMTP_PASSWORD = "mzop alcl jtlv ncxj";
 
     public static void sendEmail(String to, String subject, String messageContent) throws MessagingException {
         // Configurer les propriétés du serveur SMTP
