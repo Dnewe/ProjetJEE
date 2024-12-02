@@ -34,13 +34,6 @@ public class CourseDAO {
         return course;
     }
 
-    public Course findById_(int id) {
-        Session session = sessionFactory.openSession();
-        Course course = session.get(Course.class, id);
-        session.close();
-        return course;
-    }
-
     public List<Course> findByStudentId(int studentId) {
         Session session = sessionFactory.openSession();
         String hql = "SELECT c FROM Course c JOIN Enrollment e ON c.id = e.course.id WHERE e.student.id = :studentId";

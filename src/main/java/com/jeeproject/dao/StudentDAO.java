@@ -85,7 +85,7 @@ public class StudentDAO {
         if (hasCourseFilter) { hql += "JOIN Enrollment e ON s.id = e.student.id WHERE e.course.id = :courseId "; }
         if (hasSearch) {
             hql += (hasCourseFilter ? "AND " : "WHERE ") +
-                    "(LOWER(s.lastName) LIKE :search OR LOWER(s.firstName) LIKE :search OR LOWER(s.contact) LIKE :search) ";
+                    "(LOWER(s.lastName) LIKE :search OR LOWER(s.firstName) LIKE :search) ";
         }
         hql += "ORDER BY s.lastName, s.firstName";
 
