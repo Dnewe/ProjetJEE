@@ -24,7 +24,7 @@
             <div class="card-body">
                 <p><strong>Nom :</strong> ${student.lastName}</p>
                 <p><strong>Prénom :</strong> ${student.firstName}</p>
-                <p><strong>Contact :</strong> ${student.contact}</p>
+                <p><strong>Contact :</strong> ${student.user.email}</p>
                 <p><strong>Date de naissance :</strong> <fmt:formatDate value="${student.dateOfBirth}" pattern="dd/MM/yyyy"/></p>
             </div>
         </div>
@@ -73,7 +73,11 @@
 
         <div class="mt-4">
             <h4>Administratif</h4>
-            <a href="${pageContext.request.contextPath}/transcript?student-id=${student.id}" class="btn btn-primary">Créer Relevé de notes</a>
+            <a href="${pageContext.request.contextPath}/transcript?student-id=${student.id}" class="btn btn-primary">Télécharger Relevé de notes</a>
+            <form action="${pageContext.request.contextPath}/performanceReport" method="post" style="display: inline;">
+                <input type="hidden" name="student-id" value="${student.id}">
+                <button type="submit" class="btn btn-primary">Télécharger Rapport de Performance</button>
+            </form>
         </div>
 
         <br>

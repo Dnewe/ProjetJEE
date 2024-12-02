@@ -31,11 +31,6 @@
             <input type="text" class="form-control" id="first-name" name="first-name" value="${professor.firstName}" required>
         </div>
 
-        <!-- Contact -->
-        <div class="mb-3">
-            <label for="contact" class="form-label">Contact</label>
-            <input type="text" class="form-control" id="contact" name="contact" value="${professor.contact}" required>
-        </div>
         <!-- Boutons -->
         <a href="${pageContext.request.contextPath}/professor?action=details&professor-id=${professor.id}" class="btn btn-danger">Annuler</a>
         <button type="submit" class="btn btn-primary">Sauvegarder</button>

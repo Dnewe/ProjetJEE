@@ -79,7 +79,7 @@
                 <c:forEach var="student" items="${enrolledStudents}">
                     <tr>
                         <td>${student.firstName} ${student.lastName}</td>
-                        <td>${student.contact}</td>
+                        <td>${student.user.email}</td>
                         <td>
                             <form action="enrollment" method="post" style="display: inline-block;">
                                 <input type="hidden" name="action" value="delete">

@@ -39,7 +39,7 @@
         <c:forEach var="student" items="${students}">
             <tr>
                 <td>${student.firstName} ${student.lastName}</td>
-                <td>${student.contact}</td>
+                <td>${student.user.email}</td>
                 <td>${averageByStudent[student]} / 20</td>
                 <td><a href="result?action=studentDetails&course-id=${course.id}&student-id=${student.id}" class="btn btn-primary btn-sm">Détails</a></td>
             </tr>

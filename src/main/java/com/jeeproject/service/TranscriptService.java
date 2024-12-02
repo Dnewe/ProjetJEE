@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class TranscriptService {
 
-    public static void download(HttpServletResponse response, Student student, Map<Course, List<Result>> resultsByCourse, Map<Course, Double> averageByCourse, String comment) throws IOException {
+    public static void generate(HttpServletResponse response, Student student, Map<Course, List<Result>> resultsByCourse, Map<Course, Double> averageByCourse, String comment) throws IOException {
         PdfWriter writer = new PdfWriter(response.getOutputStream());
         PdfDocument pdfDoc = new PdfDocument(writer);
         pdfDoc.addNewPage();

@@ -60,7 +60,7 @@
                 <td>${student.id}</td>
                 <td>${student.lastName}</td>
                 <td>${student.firstName}</td>
-                <td>${student.contact}</td>
+                <td>${student.user.email}</td>
                 <td><fmt:formatDate value="${student.dateOfBirth}" pattern="dd/MM/yyyy"/></td>
                 <td>
                     <!-- Boutons actions -->

@@ -19,9 +19,6 @@ public class Student {
     @Column(name = "date_of_birth", nullable = false)
     private Date dateOfBirth;
 
-    @Column(name = "contact", nullable = true)
-    private String contact;
-
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -38,9 +35,6 @@ public class Student {
 
     public Date getDateOfBirth() { return dateOfBirth; }
     public void setDateOfBirth(Date dateOfBirth) { this.dateOfBirth = dateOfBirth; }
-
-    public String getContact() { return contact; }
-    public void setContact(String contact) { this.contact = contact; }
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }

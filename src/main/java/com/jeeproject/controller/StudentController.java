@@ -1,15 +1,9 @@
 
 package com.jeeproject.controller;
 
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.properties.TextAlignment;
 import com.jeeproject.model.Course;
 import com.jeeproject.model.Result;
 import com.jeeproject.model.Student;
-import com.jeeproject.model.User;
 import com.jeeproject.service.*;
 import com.jeeproject.util.EmailUtil;
 import com.jeeproject.util.MathUtil;
@@ -112,7 +106,6 @@ public class StudentController extends HttpServlet {
         // get parameters
         String lastName = request.getParameter("last-name");
         String firstName = request.getParameter("first-name");
-        String contact = request.getParameter("contact");
         Date dateOfBirth = TypeUtil.getDateFromString(request.getParameter("date-of-birth"));
         int userId = TypeUtil.getIntFromString(request.getParameter("user-id"));
         // verify parameters
@@ -122,10 +115,6 @@ public class StudentController extends HttpServlet {
         }
         if (!ServletUtil.validString(firstName)) {
             errorMessage = "Prénom invalide.";
-            return;
-        }
-        if (!ServletUtil.validString(contact)) {
-            errorMessage = "Contact invalide.";
             return;
         }
         if (dateOfBirth == null) {
@@ -150,7 +139,6 @@ public class StudentController extends HttpServlet {
         Student student = new Student();
         student.setLastName(lastName);
         student.setFirstName(firstName);
-        student.setContact(contact);
         student.setDateOfBirth(dateOfBirth);
         student.setUser(UserService.getUserById(userId));
         // add student
@@ -169,7 +157,6 @@ public class StudentController extends HttpServlet {
         // get parameters
         String lastName = request.getParameter("last-name");
         String firstName = request.getParameter("first-name");
-        String contact = request.getParameter("contact");
         Date dateOfBirth = TypeUtil.getDateFromString(request.getParameter("date-of-birth"));
         int studentId = TypeUtil.getIntFromString(request.getParameter("student-id"));
         // verify parameters
@@ -181,7 +168,6 @@ public class StudentController extends HttpServlet {
         Student student = StudentService.getStudentById(studentId);
         if (ServletUtil.validString(lastName)) { student.setLastName(lastName); }
         if (ServletUtil.validString(firstName)) { student.setFirstName(firstName); }
-        if (ServletUtil.validString(contact)) { student.setContact(contact); }
         if (dateOfBirth != null) { student.setDateOfBirth(dateOfBirth); }
         // apply changes
         StudentService.updateStudent(student);
@@ -271,7 +257,7 @@ public class StudentController extends HttpServlet {
         Map<Student, Double> averageByStudent = resultsByStudent.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        entry -> MathUtil.calculateAverage(entry.getValue())
+                        entry -> MathUtil.calculateAverageFromResults(entry.getValue())
                 ));
         request.setAttribute("averageByStudent", averageByStudent);
         request.setAttribute("course", CourseService.getCourseById(courseId));

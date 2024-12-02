@@ -16,9 +16,6 @@ public class Professor {
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name = "contact", nullable = true)
-    private String contact;
-
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -32,9 +29,6 @@ public class Professor {
 
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
-
-    public String getContact() { return contact; }
-    public void setContact(String contact) { this.contact = contact; }
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }

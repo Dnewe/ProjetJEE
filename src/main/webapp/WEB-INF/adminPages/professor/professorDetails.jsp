@@ -22,7 +22,7 @@
             </tr>
             <tr>
                 <th>Email</th>
-                <td>${professor.contact}</td>
+                <td>${professor.user.email}</td>
             </tr>
         </table>
 

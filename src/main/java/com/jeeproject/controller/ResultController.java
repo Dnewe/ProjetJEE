@@ -268,7 +268,7 @@ public class ResultController extends HttpServlet {
         Map<Course, Double> averageByCourse = resultsByCourse.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        entry -> MathUtil.calculateAverage(entry.getValue())
+                        entry -> MathUtil.calculateAverageFromResults(entry.getValue())
                 ));
         request.setAttribute("averageByCourse", averageByCourse);
     }
@@ -289,7 +289,7 @@ public class ResultController extends HttpServlet {
         // get results and average
         List<Result> results = ResultService.getResultsByStudentIdAndCourseId(studentId, courseId);
         request.setAttribute("results", results);
-        request.setAttribute("average", MathUtil.calculateAverage(results));
+        request.setAttribute("average", MathUtil.calculateAverageFromResults(results));
         // get course and student
         request.setAttribute("course", CourseService.getCourseById(courseId));
         request.setAttribute("student", StudentService.getStudentById(studentId));

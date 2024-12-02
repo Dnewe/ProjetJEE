@@ -25,7 +25,6 @@ CREATE TABLE `student` (
   `last_name` varchar(100) NOT NULL,
   `first_name` varchar(100) NOT NULL,
   `date_of_birth` date DEFAULT NULL,
-  `contact` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
   CONSTRAINT `student_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
@@ -36,7 +35,6 @@ CREATE TABLE `professor` (
   `user_id` int NOT NULL,
   `last_name` varchar(100) NOT NULL,
   `first_name` varchar(100) NOT NULL,
-  `contact` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
   CONSTRAINT `professor_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE

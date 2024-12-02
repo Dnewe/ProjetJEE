@@ -117,7 +117,6 @@ public class ProfessorController extends HttpServlet {
     /*private void createProfessor(HttpServletRequest request) {
         String lastName = request.getParameter("last-name");
         String firstName = request.getParameter("first-name");
-        String contact = request.getParameter("contact");
         int userId = TypeUtil.getIntFromString(request.getParameter("user-id"));
 
         if (!ServletUtil.validString(lastName)) {
@@ -126,10 +125,6 @@ public class ProfessorController extends HttpServlet {
         }
         if (!ServletUtil.validString(firstName)) {
             errorMessage = "Prénom invalide.";
-            return;
-        }
-        if (!ServletUtil.validString(contact)) {
-            errorMessage = "Contact invalide.";
             return;
         }
         if (userId == -1 || UserService.getUserById(userId) == null) {
@@ -150,7 +145,6 @@ public class ProfessorController extends HttpServlet {
         Professor professor = new Professor();
         professor.setLastName(lastName);
         professor.setFirstName(firstName);
-        professor.setContact(contact);
         professor.setUser(user);
 
         ProfessorService.addProfessor(professor);
@@ -160,7 +154,6 @@ public class ProfessorController extends HttpServlet {
     private void updateProfessor(HttpServletRequest request) {
         String lastName = request.getParameter("last-name");
         String firstName = request.getParameter("first-name");
-        String contact = request.getParameter("contact");
         int professorId = TypeUtil.getIntFromString(request.getParameter("professor-id"));
 
         System.out.println(professorId);
@@ -173,7 +166,6 @@ public class ProfessorController extends HttpServlet {
         Professor professor = ProfessorService.getProfessorById(professorId);
         if (ServletUtil.validString(lastName)) professor.setLastName(lastName);
         if (ServletUtil.validString(firstName)) professor.setFirstName(firstName);
-        if (ServletUtil.validString(contact)) professor.setContact(contact);
 
         ProfessorService.updateProfessor(professor);
         request.setAttribute("successMessage", "Professeur modifié avec succès");

@@ -30,12 +30,6 @@
             <input type="text" class="form-control" id="first-name" name="first-name" value="${student.firstName}" required>
         </div>
 
-        <!-- Contact -->
-        <div class="mb-3">
-            <label for="contact" class="form-label">Contact</label>
-            <input type="text" class="form-control" id="contact" name="contact" value="${student.contact}" required>
-        </div>
-
         <!-- Date de naissance -->
         <div class="mb-3">
             <label for="date-of-birth" class="form-label">Date de naissance</label>

@@ -28,7 +28,7 @@
                 <td>${professor.id}</td>
                 <td>${professor.lastName}</td>
                 <td>${professor.firstName}</td>
-                <td>${professor.contact}</td>
+                <td>${professor.user.email}</td>
                 <td>
                     <a href="${pageContext.request.contextPath}/professor?action=details&professor-id=${professor.id}" class="btn btn-info btn-sm">Détails</a>
                     <a href="${pageContext.request.contextPath}/professor?action=updateForm&professor-id=${professor.id}" class="btn btn-warning btn-sm">Modifier</a>

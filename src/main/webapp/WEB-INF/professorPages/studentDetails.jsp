@@ -16,8 +16,20 @@
 </jsp:include>
 
 <div class="container mt-4">
-    <h2>Notes de ${student.firstName} ${student.lastName} pour le cours ${course.name}</h2>
+    <h2>Notes de l'étudiant ${student.firstName} ${student.lastName} pour le cours ${course.name}</h2>
     <jsp:include page="/WEB-INF/util/errorMessage.jsp" />
+
+    <div class="card mt-4">
+        <div class="card-header">
+            Informations sur l'étudiant
+        </div>
+        <div class="card-body">
+            <p><strong>Nom :</strong> ${student.lastName}</p>
+            <p><strong>Prénom :</strong> ${student.firstName}</p>
+            <p><strong>Contact :</strong> ${student.user.email}</p>
+            <p><strong>Date de naissance :</strong> <fmt:formatDate value="${student.dateOfBirth}" pattern="dd/MM/yyyy"/></p>
+        </div>
+    </div>
 
     <!-- Liste des étudiants inscrits avec moyenne -->
     <table class="table table-striped table-bordered">

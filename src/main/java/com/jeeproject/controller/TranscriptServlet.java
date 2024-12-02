@@ -41,7 +41,7 @@ public class TranscriptServlet extends HttpServlet {
             Map<Course, Double> averageByCourse = resultsByCourse.entrySet().stream()
                     .collect(Collectors.toMap(
                             Map.Entry::getKey,
-                            entry -> MathUtil.calculateAverage(entry.getValue())
+                            entry -> MathUtil.calculateAverageFromResults(entry.getValue())
                     ));
             // Configuration de la réponse HTTP pour le téléchargement
             response.setContentType("application/pdf");
@@ -49,7 +49,7 @@ public class TranscriptServlet extends HttpServlet {
 
             // Générer le PDF
             try {
-                TranscriptService.download(response, student, resultsByCourse, averageByCourse, comment);
+                TranscriptService.generate(response, student, resultsByCourse, averageByCourse, comment);
             } catch (Exception e) {
                 errorMessage = "Création du pdf impossible.";
             }
@@ -78,7 +78,7 @@ public class TranscriptServlet extends HttpServlet {
             Map<Course, Double> averageByCourse = resultsByCourse.entrySet().stream()
                     .collect(Collectors.toMap(
                             Map.Entry::getKey,
-                            entry -> MathUtil.calculateAverage(entry.getValue())
+                            entry -> MathUtil.calculateAverageFromResults(entry.getValue())
                     ));
             request.setAttribute("averageByCourse", averageByCourse);
         }
